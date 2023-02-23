@@ -7,15 +7,11 @@
 #pip3 install "uvicorn[standard]"
 #python -m uvicorn main:app --reload
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-import schema
 from database import SessionLocal, engine, get_database_session
-import model
+import model 
 from model import Usuario
-
-from typing import List
-from fastapi import Depends
 
 model.Base.metadata.create_all(bind=engine)
 
