@@ -1,11 +1,14 @@
 from sqlalchemy.schema import Column
-from sqlalchemy.types import String, Integer, Text
+from sqlalchemy.types import String, Boolean
+from sqlalchemy import TIMESTAMP, text
 from database import Base
+from datetime import datetime
 
 class Usuario(Base):
     __tablename__ = "Usuario"
 
-    id = Column(String(30), primary_key=True, unique=True)
+    username = Column(String(30), primary_key=True, unique=True)
     nombre = Column(String(30))
-    password = Column(String(30))
+    hashed_password = Column(String(100), unique=True)
     correo = Column(String(50))
+    disable = Column(Boolean)
