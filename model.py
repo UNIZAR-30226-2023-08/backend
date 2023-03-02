@@ -11,4 +11,4 @@ class Usuario(Base):
     nombre = Column(String(30))
     hashed_password = Column(String(100), unique=True)
     correo = Column(String(50))
-    disable = Column(Boolean)
+    disabled = Column(Boolean)

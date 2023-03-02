@@ -41,12 +41,9 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     username: str
-    correo: str | None = None
     nombre: str | None = None
+    correo: str | None = None
     disabled: bool | None = None
-
-class UserInDB(User):
-    hashed_password: str
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -57,12 +54,14 @@ def get_password_hash(password):
 
 
 def get_user(db, username: str):
-    usuario_info = comprobar_credenciales(db, username)
+    usuario_info = comprobar_usuario(db, username)
     if usuario_info is None:
         pass
     else:
         return usuario_info
         
+def comprobar_usuario(sesion: SessionLocal, username: str):
+    return sesion.query(Usuario).filter(Usuario.username == username).first()
 
 def authenticate_user(db, username: str, password: str):
     user = get_user(db, username)
@@ -131,21 +130,12 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
 
-@app.get("/users/me/items/")
-async def read_own_items(current_user: User = Depends(get_current_active_user)):
-    return [{"item_id": "Foo", "owner": current_user.username}]
-
 #//////////////////////SECURITY//////////////////////////////////////////////////////
 
 @app.get("/") #Funcion que hay debajo de esta petición
 async def root():
     return {"Hello world"}
 
-def comprobar_credenciales(sesion: SessionLocal, username: str):
-    return sesion.query(Usuario).filter(Usuario.username == username).first()
-
-
-    
 
 
 
