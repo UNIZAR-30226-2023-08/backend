@@ -1,4 +1,3 @@
-from datetime import date
 from pydantic import BaseModel
 
 #When you need to send data from a client (let's say, a browser) to your API, you send it as a request body.
@@ -8,10 +7,29 @@ from pydantic import BaseModel
 #https://fastapi.tiangolo.com/tutorial/body/
 
 class Usuario(BaseModel):
-    
-    id: str
+    username: str
     nombre: str
-    password: str
-    
+    hashed_password: str
+    correo: str
+    disabled : bool 
+
     class Config:
-        orm_mode = True #will instruct Pydantic model to read the data as a dictionary and as an atribute
+        orm_mode = True
+        
+class Partida(BaseModel):
+    id: str
+    jugador1: str   
+    jugador2: str
+    jugador3: str   
+    jugador4: str
+
+    class Config:
+        schema_extra = {
+            "ejemplo": {
+                "id": "1",
+                "jugador1": "Jane Doe",
+                "jugador2": "jdoe@example.com",
+                "jugador3": "Experiments",
+                "jugador4": "3.0",
+            }
+        }

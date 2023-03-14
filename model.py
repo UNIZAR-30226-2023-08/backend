@@ -1,8 +1,7 @@
 from sqlalchemy.schema import Column
 from sqlalchemy.types import String, Boolean
-from sqlalchemy import TIMESTAMP, text
+from sqlalchemy import text
 from database import Base
-from datetime import datetime
 
 class Usuario(Base):
     __tablename__ = "Usuario"

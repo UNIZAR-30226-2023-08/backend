@@ -6,19 +6,27 @@
 #python -m uvicorn main:app --reload
 
 from datetime import timedelta, datetime
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import Body, FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from jose import JWTError, jwt #pip install "python-jose[cryptography]"
+
 from passlib.context import CryptContext #pip install "passlib[bcrypt]"
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine, get_database_session
 import model 
 from model import Usuario
 from pydantic import BaseModel
+from database import dbMongo, dbPartida
+from schema import Partida, Usuario
+import schema
+import model
 
 model.Base.metadata.create_all(bind=engine)
 
 app = FastAPI() #Crea una instancia de FastApi
+
 
 #////////////////////////SECURITY FAST-API/////////////////////////
 #https://fastapi.tiangolo.com/es/tutorial/security/
@@ -41,9 +49,9 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     username: str
-    nombre: str | None = None
-    correo: str | None = None
-    disabled: bool | None = None
+    nombre: str
+    correo: str
+    disabled : bool 
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -61,7 +69,7 @@ def get_user(db, username: str):
         return usuario_info
         
 def comprobar_usuario(sesion: SessionLocal, username: str):
-    return sesion.query(Usuario).filter(Usuario.username == username).first()
+    return sesion.query(model.Usuario).filter(model.Usuario.username == username).first()
 
 def authenticate_user(db, username: str, password: str):
     user = get_user(db, username)
@@ -103,7 +111,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), sesion: Session 
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
+async def get_current_active_user(current_user: model.Usuario = Depends(get_current_user)):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -125,18 +133,33 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get("/users/me/", response_model=User)
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
+@app.get("/users/me/", response_model=Usuario)
+async def read_users_me(current_user: model.Usuario = Depends(get_current_active_user)):
+    current_user.hashed_password = "****************"
     return current_user
 
 
 #//////////////////////SECURITY//////////////////////////////////////////////////////
 
+
 @app.get("/") #Funcion que hay debajo de esta petición
 async def root():
-    return {"Hello world"}
+    return {"MENU PRINCIPAL"}
 
+#Registra un nuevo usuario en la base de datos con contraseña cifrada
+@app.post("/registrarUsuario", response_description="Aniadir nuevo usuario", response_model=Usuario)
+async def resgistrar_usuario(usuario: schema.Usuario, sesion: Session = Depends(get_database_session)):
+    usuario.hashed_password = get_password_hash(usuario.hashed_password)
+    nuevo_usuario = model.Usuario(**usuario.dict())
+    sesion.add(nuevo_usuario)
+    sesion.commit()
+    sesion.refresh(nuevo_usuario)
 
+#Crea una partida en la base de datos mongodb (Incompleto)
+@app.post("/crearPartida", response_description="Add new student", response_model=Partida)
+async def crear_partida(partida: Partida = Body(...)):
+    partida = jsonable_encoder(partida)
+    nueva_partida = await dbPartida.insert_one(partida)
 
 
 ######################################################
