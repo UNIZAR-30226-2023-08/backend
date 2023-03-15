@@ -147,19 +147,20 @@ async def root():
     return {"MENU PRINCIPAL"}
 
 #Registra un nuevo usuario en la base de datos con contraseña cifrada
-@app.post("/registrarUsuario", response_description="Aniadir nuevo usuario", response_model=Usuario)
+@app.post("/registrarUsuario", response_description="Aniadir nuevo usuario")
 async def resgistrar_usuario(usuario: schema.Usuario, sesion: Session = Depends(get_database_session)):
     usuario.hashed_password = get_password_hash(usuario.hashed_password)
     nuevo_usuario = model.Usuario(**usuario.dict())
     sesion.add(nuevo_usuario)
     sesion.commit()
-    sesion.refresh(nuevo_usuario)
+    sesion.refresh(nuevo_usuario) 
 
 #Crea una partida en la base de datos mongodb (Incompleto)
-@app.post("/crearPartida", response_description="Add new student", response_model=Partida)
-async def crear_partida(partida: Partida = Body(...)):
+@app.post("/crearPartida", response_description="Nueva partida", response_model=Partida) #Especifica valor a retornar
+async def crear_partida(partida: schema.Partida):
     partida = jsonable_encoder(partida)
     nueva_partida = await dbPartida.insert_one(partida)
+    return nueva_partida
 
 
 ######################################################

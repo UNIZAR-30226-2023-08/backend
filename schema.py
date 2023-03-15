@@ -8,9 +8,9 @@ from pydantic import BaseModel
 
 class Usuario(BaseModel):
     username: str
-    nombre: str
+    nombre: str 
     hashed_password: str
-    correo: str
+    correo: str 
     disabled : bool 
 
     class Config:
@@ -22,14 +22,3 @@ class Partida(BaseModel):
     jugador2: str
     jugador3: str   
     jugador4: str
-
-    class Config:
-        schema_extra = {
-            "ejemplo": {
-                "id": "1",
-                "jugador1": "Jane Doe",
-                "jugador2": "jdoe@example.com",
-                "jugador3": "Experiments",
-                "jugador4": "3.0",
-            }
-        }
