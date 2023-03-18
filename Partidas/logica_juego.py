@@ -40,12 +40,13 @@ def que_jugador_gana_baza(baza, triunfo):
         #Si no son del mismo palo
         else:
             #Si la nueva carta es del triunfo
-            if baza[i][0] == triunfo:
+            if baza[i][0] == triunfo[0]:
                 cartaAlta = baza[i]     
     return cartaAlta
 
 
-def que_cartas_puede_usar_juagdor_arrastre(mano, baza, triunfo):
+def que_cartas_puede_usar_jugador_arrastre(mano, baza, triunfo):
+    triunfo = triunfo[0]
     if len(baza) == 1:
         return si_puedo_tengo_que_superar(mano, baza, triunfo)
     elif len(baza) == 2:
@@ -74,8 +75,8 @@ def si_puedo_tengo_que_superar(mano, baza, triunfo):
                 cartasPosibles.append(mano[x])
             if len(cartasPosibles) == 0: return mano;
         for c in range(len(cartasPosibles)):
-            cartasPosiblesValor = valorCarta.index(cartasPosibles[c][1])
-            cartaBazaValor = valorCarta.index(baza[0][1])
+            cartasPosiblesValor = valorCarta.index(int(cartasPosibles[c][1]))
+            cartaBazaValor = valorCarta.index(int(baza[0][1]))
             if cartasPosiblesValor > cartaBazaValor:
                 cartasPosiblesMayores.append(cartasPosibles[c])
         if len(cartasPosiblesMayores) > 0: return cartasPosiblesMayores;
@@ -88,8 +89,8 @@ def si_puedo_tengo_que_superar(mano, baza, triunfo):
         #Si tengo cartas del palo
         if len(cartasPosibles) > 0:
             for i in range(len(cartasPosibles)):
-                cartasPosiblesValor = valorCarta.index(cartasPosibles[i][1])
-                cartaBazaValor = valorCarta.index(baza[0][1])
+                cartasPosiblesValor = valorCarta.index(int(cartasPosibles[i][1]))
+                cartaBazaValor = valorCarta.index(int(baza[0][1]))
                 if cartasPosiblesValor > cartaBazaValor:
                     cartasPosiblesMayores.append(cartasPosibles[i])
             #Si tengo cartas de ese palo mayores
@@ -114,9 +115,7 @@ def no_tengo_que_superar(mano, baza):
     else: return mano;
                 
 
-validez = que_cartas_puede_usar_juagdor_arrastre([("basto", 2), ("basto", 11), ("oro", 3)], [("copa", 5), ("basto", 4)], "espada")
-print("       ")
-print(validez)
+validez = que_cartas_puede_usar_jugador_arrastre([("basto", 2), ("basto", 11), ("oro", 3)], [("copa", 5), ("basto", 4)], "espada")
 
 suma = sumar_puntos([("espada", 3), ("espada", 1), ("basto", 5), ("oro", 5)])
 #print(suma)
