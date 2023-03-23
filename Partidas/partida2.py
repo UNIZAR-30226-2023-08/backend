@@ -2,10 +2,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from logica_juego import crear_mazo, repartir_cartas, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre
 import random
 import asyncio
-from collections import deque
 
-
-#TODO cambiar a que se lo mande el main
 app = FastAPI()
 
 players_connected = {}
@@ -14,55 +11,36 @@ jugadores = {}
 puntosJugador1 = 0
 puntosJugador2 = 0
 
+#async def partida2(direccion, app):
 #TODO hacer que sea una funcino que le llame el main    
 @app.websocket("/partidaX/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     await websocket.accept()
     try:
         while True:
-            players_connected[client_id] = websocket
             message = await websocket.receive_text()
             print(f'Mensaje recibido del cliente {client_id}: {message}')
+            players_connected[client_id] = websocket
             if len(players_connected) == 2:
                 await send_to_all_clients("se empieza", players_connected)
                 mazo, triunfo, jugadores_inicial, jugadores = await comienzo_partida(players_connected)
-                #TODO hacer bucle con la cantidad de rondas
-                jugadores = await ronda(jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2)
-                mazo =  await repartir(jugadores, mazo)
-                #TODO en ultima ronda robe el ultimo el triunfo
+                for i in range(14):
+                    jugadores = await ronda(jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, websocket)
+                    mazo =  await repartir(jugadores, mazo, triunfo)
                 
-                #TODO recibir manos
-                #for i in range(2):
-                #Recibo las manos de cada juagdor 
-                asyncio.create_task(send_to_all_clients("ARRASTRE", players_connected))
-                mano1 = "copa-12, oro-12, espada-2, basto-3, oro-3, basto-5"
-                mano2 = "copa-12, oro-11, espada-3, basto-4, oro-1, basto-6"
-                manos = []
-                mano = []
-                for carta in mano1.split(", "):
-                    palo, valor = carta.split("-")
-                    mano.append((palo, int(valor)))
-                manos.append(mano)
-                    
-                    
-                mano = []   
-                for carta in mano2.split(", "):
-                    palo, valor = carta.split("-")
-                    mano.append((palo, int(valor)))
-                manos.append(mano)
-                                    
+                manos = await recibir_manos(websocket, players_connected)
                 for i in range(6):
                     #Comienza el arrastre
-                    jugadores, manos = await arrastre(jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, manos)
+                    jugadores, manos = await arrastre(websocket, jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, manos)
 
                 #TODO capturar las excepciones
-                #TODO cerrrar sockets 
                 #TODO meter datos de partidas y puntos y esas cosas en la bd
+                websocket.close()
                 
             else:
                 await websocket.send_text("esperando a otro jugador")
-                
             
+        
     except WebSocketDisconnect:
         print("Exception")
         
@@ -79,19 +57,20 @@ async def comienzo_partida(players_connected):
     for i, player_id in enumerate(jugadores):
         mano_str = ', '.join([f"{palo}-{valor}" for palo, valor in manos[i]])
         triunfo_str = f"{triunfo[0]}-{triunfo[1]}"
-        message = f"Mano: {mano_str}, Triunfo: {triunfo_str}"
+        message = f"Mano: {mano_str}, Triunfo: {triunfo_str}, NumJugador: {i+1}"
         asyncio.create_task(send_to_single_client(player_id, message, players_connected))
         
     return mazo, triunfo, jugadores_inicial, jugadores
         
-async def ronda(jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2):
+async def ronda(jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, websocket):
     cartas_jugadas = []
     #Que cada jugador juegue una carta
     for i, player_id in enumerate(jugadores):
-        message = f"Es tu turno"
+        message = f"Tu turno"
         asyncio.create_task(send_to_single_client(player_id, message, players_connected))
-        #TODO hacer await recibir carta jugada
-        carta = "copa-12"
+        carta = await websocket.receive_text()
+        if carta[0] !=  "N":
+            break
         palo, valor = carta.split("-")
         carta_tupla = (palo, int(valor))
         cartas_jugadas.append(carta_tupla)
@@ -104,43 +83,50 @@ async def ronda(jugadores_inicial, jugadores, players_connected, triunfo, puntos
     #Sumo puntos al jugador que ha ganado la baza
     if jugadores[indice_ganador] == jugadores_inicial[0]:
         puntosJugador1 += sumar_puntos(cartas_jugadas)
+        await send_to_all_clients("Ganador_Baza: 1", players_connected)
     else:
         puntosJugador2 += sumar_puntos(cartas_jugadas)
+        await send_to_all_clients("Ganador_Baza: 2", players_connected)
     #Si el jugador que ha ganado es el 1, cambia el orden de los jugadores
     if indice_ganador == 1:
         jugadores = jugadores[1:] + jugadores[:1]
-    
-    #TODO mandar quien ha gandao ronda
-    
+        
     return jugadores
 
 #Repartir carta robada a los jugadores
-async def repartir(jugadores, mazo):
+async def repartir(jugadores, mazo, triunfo):
     for i, player_id in enumerate(jugadores):
-        carta_robada = mazo[0]
-        mazo.remove(carta_robada)
+        if len(mazo) == 0:
+            carta_robada = triunfo
+        else:
+            carta_robada = mazo[0]
+            mazo.remove(carta_robada)
         carta_str = f"{carta_robada[0]}-{carta_robada[1]}"
         message = f"Carta_robada: {carta_str}"
         asyncio.create_task(send_to_single_client(player_id, message, players_connected))
         
     return mazo
+
+
     
-    
-async def arrastre(jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, manos):
+async def arrastre(websocket, jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, manos):
     cartas_jugadas = []
     for i, player_id in enumerate(jugadores):
         #si eres el primero en tirar puedes usar lo que quieras
         if i == 0:
-            message = f"Tu turno: {manos[i]}"
+            mano_str = ', '.join([f"{palo}-{valor}" for palo, valor in manos[i]])
+            message = f"Tu turno: {mano_str}"
             asyncio.create_task(send_to_single_client(player_id, message, players_connected))
         #sino eres el primero en tirar depenses de la baza
         else:
             cartas_posibles = que_cartas_puede_usar_jugador_arrastre(manos[i], cartas_jugadas, triunfo)
+            cartas_posibles = ', '.join([f"{palo}-{valor}" for palo, valor in cartas_posibles[i]])
             message = f"Tu turno: {cartas_posibles}"
             asyncio.create_task(send_to_single_client(player_id, message, players_connected))
-       
-        #TODO hacer await recibir carta jugada
-        carta = "copa-12"
+        carta = await websocket.receive_text()
+        if carta[0] !=  "A":
+            break
+        #carta = "oro-1"
         palo, valor = carta.split("-")
         carta_tupla = (palo, int(valor))
         manos[i].remove(manos[i][0])
@@ -154,14 +140,14 @@ async def arrastre(jugadores_inicial, jugadores, players_connected, triunfo, pun
     #Sumo puntos al jugador que ha ganado la baza
     if jugadores[indice_ganador] == jugadores_inicial[0]:
         puntosJugador1 += sumar_puntos(cartas_jugadas)
+        await send_to_all_clients("Ganador_Baza: 1", players_connected)
     else:
         puntosJugador2 += sumar_puntos(cartas_jugadas)
+        await send_to_all_clients("Ganador_Baza: 2", players_connected)
     #Si el jugador que ha ganado es el 1, cambia el orden de los jugadores
     if indice_ganador == 1:
         jugadores = jugadores[1:] + jugadores[:1]
         manos = manos[1:] + manos[:1]
-    
-    #TODO mandar quien ha gandao ronda
     
     return jugadores, manos
 
@@ -185,4 +171,19 @@ async def send_to_single_client(client_id: str, message: str, connected_clients:
             pass
     else:
         print(f"No se encontró el cliente con ID: {client_id}")
+        
+async def recibir_manos(websocket, players_connected):
+    manos = []
+    for i, player_id in enumerate(players_connected):
+        await send_to_single_client(player_id, "Arrastre", players_connected)
+        message = await websocket.receive_text()
+        if message[0] != "C":
+            break
+        print(f"Mensaje recibido del cliente {player_id}: {message}")
+        mano = []
+        for carta in message.split(", "):
+            palo, valor = carta.split("-")
+            mano.append((palo, int(valor)))
+        manos.append(mano)
+    return manos
 
