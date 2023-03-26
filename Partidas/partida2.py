@@ -22,22 +22,41 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             print(f'Mensaje recibido del cliente {client_id}: {message}')
             players_connected[client_id] = websocket
             if len(players_connected) == 2:
-                await send_to_all_clients("se empieza", players_connected)
-                mazo, triunfo, jugadores_inicial, jugadores = await comienzo_partida(players_connected)
-                for i in range(14):
-                    jugadores = await ronda(jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, websocket)
-                    mazo =  await repartir(jugadores, mazo, triunfo)
+                for modo in range(2):
+                    #TODOD quitar este mensaje
+                    await send_to_all_clients("se empieza", players_connected)
+                    mazo, triunfo, jugadores_inicial, jugadores = await comienzo_partida(players_connected)
+                    for i in range(14):
+                        jugadores, puntosJugador1, puntosJugador2 = await ronda(jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, websocket)
+                        if modo == 2: 
+                            if comprobarGanador(puntosJugador1, puntosJugador2): break
+                        mazo =  await repartir(jugadores, mazo, triunfo)
+                    
+                    manos = await recibir_manos(websocket, players_connected)
+                    for i in range(6):
+                        #Comienza el arrastre
+                        jugadores, manos, puntosJugador1, puntosJugador2 = await arrastre(websocket, jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, manos)
+                        if modo == 2: 
+                            if comprobarGanador(puntosJugador1, puntosJugador2): break
+                   
+                    if puntosJugador1 > 100:
+                        message = "Gana el jugador 1, Puntos1: " + str(puntosJugador1) + " , Puntos2: " + str(puntosJugador2)
+                        await send_to_all_clients(message, players_connected)
+                        break
+                    elif puntosJugador2 > 100:
+                        message = "Gana el jugador 2, Puntos1: " + str(puntosJugador1) + " , Puntos2: " + str(puntosJugador2)
+                        await send_to_all_clients(message, players_connected)
+                        break
+                    else:
+                        message = "Vueltas, Puntos1: " + str(puntosJugador1) + " , Puntos2: " + str(puntosJugador2)
+                        await send_to_all_clients(message, players_connected)
                 
-                manos = await recibir_manos(websocket, players_connected)
-                for i in range(6):
-                    #Comienza el arrastre
-                    jugadores, manos = await arrastre(websocket, jugadores_inicial, jugadores, players_connected, triunfo, puntosJugador1, puntosJugador2, manos)
-
-                #TODO capturar las excepciones
-                #TODO meter datos de partidas y puntos y esas cosas en la bd
                 websocket.close()
+                #TODO meter datos de partidas y puntos y esas cosas en la bd
+                guardarBD()
                 
             else:
+                #TODO si se desconecta un jugador, que hacer
                 await websocket.send_text("esperando a otro jugador")
             
         
@@ -91,7 +110,7 @@ async def ronda(jugadores_inicial, jugadores, players_connected, triunfo, puntos
     if indice_ganador == 1:
         jugadores = jugadores[1:] + jugadores[:1]
         
-    return jugadores
+    return jugadores, puntosJugador1, puntosJugador2
 
 #Repartir carta robada a los jugadores
 async def repartir(jugadores, mazo, triunfo):
@@ -149,8 +168,7 @@ async def arrastre(websocket, jugadores_inicial, jugadores, players_connected, t
         jugadores = jugadores[1:] + jugadores[:1]
         manos = manos[1:] + manos[:1]
     
-    return jugadores, manos
-
+    return jugadores, manos, puntosJugador1, puntosJugador2
 
 
 async def send_to_all_clients(message: str, connected_clients: dict):
@@ -159,7 +177,6 @@ async def send_to_all_clients(message: str, connected_clients: dict):
             await websocket.send_text(message)
         except WebSocketDisconnect:
             pass
-        
         
 async def send_to_single_client(client_id: str, message: str, connected_clients: dict):
     websocket = connected_clients.get(client_id)
@@ -186,4 +203,20 @@ async def recibir_manos(websocket, players_connected):
             mano.append((palo, int(valor)))
         manos.append(mano)
     return manos
+
+async def comprobarGanador(puntosJugador1, puntosJugador2):
+    if puntosJugador1 >= 100:
+        message = "Gana el jugador 1, Puntos1: " + str(puntosJugador1) + " , Puntos2: " + str(puntosJugador2)
+        await send_to_all_clients(message, players_connected)
+        return True
+    elif puntosJugador2 >= 100:
+        message = "Gana el jugador 2, Puntos1: " + str(puntosJugador1) + " , Puntos2: " + str(puntosJugador2)
+        await send_to_all_clients(message, players_connected)
+        return True
+    else:
+        return False
+
+def guardarBD():
+    #Guardo los datos en la BD
+    print("Guardar datos en la BD")
 
