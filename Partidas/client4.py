@@ -2,7 +2,7 @@ import asyncio
 import websockets
 
 async def partida2(direccion):
-    direccion = "ws://localhost:8000/partidaX/jose"
+    direccion = "ws://localhost:8000/partida/2/jose"
     async with websockets.connect(direccion) as websocket:
         await websocket.send('JOSE  entra!')
         while(True):

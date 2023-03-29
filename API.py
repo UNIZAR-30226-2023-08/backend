@@ -10,6 +10,26 @@ connected_clients_2 = {}
 connected_clients_3 = {}
 connected_clients_4 = {}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @app.websocket("/partida/{num_jugadores}/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, num_jugadores: int, client_id: str):
     global connected_clients_2
