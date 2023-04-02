@@ -144,7 +144,7 @@ async def read_users_me(current_user: model.Usuario = Depends(get_current_active
 
 @app.get("/") #Funcion que hay debajo de esta petición
 async def root():
-    return {"TONTO EL QUE LO LEA"}
+    return {"s"}
 
 #Registra un nuevo usuario en la base de datos con contraseña cifrada
 @app.post("/register", response_description="Aniadir nuevo usuario")
