@@ -1,7 +1,12 @@
+from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from logica_juego import crear_mazo, repartir_cartas, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre
+from Partidas.ranking import COINS_GANADOR, LP_GANADOR, LP_PERDEDOR
+from crud import actualizaDerrotas, actualizarCoins, actualizarLP, actualizarVictorias, insertarPartida4
+from Partidas.logica_juego import crear_mazo, repartir_cartas, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre
 import random
 import asyncio
+
+from schema import PartidaCuatro
 
 app = FastAPI()
 
@@ -225,7 +230,32 @@ async def comprobarGanador(puntosEquipo1, puntosEquipo2):
     else:
         return False
 
-def guardarBD():
-    #Guardo los datos en la BD
-    print("Guardar datos en la BD")
+async def actualizarEstadisticas4Jugadores(jugadorGanador1, jugadorGanador2, jugadorPerdedor1, jugadorPerdedor2): #GANADOR, PERDEDOR
+    await actualizarLP(jugadorGanador1, LP_GANADOR)
+    await actualizarLP(jugadorGanador2, LP_GANADOR)
+    await actualizarCoins(jugadorGanador1, COINS_GANADOR)
+    await actualizarCoins(jugadorGanador2, COINS_GANADOR)
+    await actualizarLP(jugadorPerdedor1, LP_PERDEDOR)
+    await actualizarLP(jugadorPerdedor2, LP_PERDEDOR)
+    await actualizarVictorias(jugadorGanador1)
+    await actualizarVictorias(jugadorGanador2)
+    await actualizaDerrotas(jugadorPerdedor1)
+    await actualizaDerrotas(jugadorPerdedor2)
+    
+async def guardarPartida4Jugadores(puntosGanador, puntosPerdedor,jugadorGanador1,jugadorGanador2, jugadorPerdedor1,jugadorPerdedor2):  
+      now = datetime.now().replace(second=0)
+      formatted_date = now.strftime('%Y-%m-%d %H:%M')
+      partida = PartidaCuatro(
+          jugador1=jugadorGanador1,
+          jugador2=jugadorGanador2,
+          jugador3=jugadorPerdedor1,
+          jugador4=jugadorPerdedor2,
+          puntosEquipo1=puntosGanador,
+          puntosEquipo2=puntosPerdedor,
+          ganadorJ1=jugadorGanador1,
+          ganadorJ2=jugadorGanador2,
+          fecha=formatted_date
+      )
+      partida4 = partida.dict()
+      await insertarPartida4(partida4)
 

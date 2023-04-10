@@ -1,7 +1,13 @@
+from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from logica_juego import crear_mazo, repartir_cartas, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre
+
 import random
 import asyncio
+
+from Partidas.logica_juego import crear_mazo, que_cartas_puede_usar_jugador_arrastre, que_jugador_gana_baza, repartir_cartas, sumar_puntos
+from Partidas.ranking import COINS_GANADOR, LP_GANADOR, LP_PERDEDOR
+from crud import actualizaDerrotas, actualizarCoins, actualizarLP, actualizarVictorias, insertarPartida2
+from schema import PartidaDos
 
 app = FastAPI()
 
@@ -13,7 +19,7 @@ puntosJugador2 = 0
 
 #async def partida2(direccion, app):
 #TODO hacer que sea una funcino que le llame el main    
-@app.websocket("/partidaX/{client_id}")
+@app.websocket("/partidaX/{client_id}") ##CLIENTE ID = USERNAME
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     await websocket.accept()
     try:
@@ -216,7 +222,24 @@ async def comprobarGanador(puntosJugador1, puntosJugador2):
     else:
         return False
 
-def guardarBD():
-    #Guardo los datos en la BD
-    print("Guardar datos en la BD")
+async def actualizarEstadisticas2Jugadores(jugadorGanador, jugadorPerdedor): #GANADOR, PERDEDOR
+    await actualizarLP(jugadorGanador, LP_GANADOR)
+    await actualizarCoins(jugadorGanador, COINS_GANADOR)
+    await actualizarLP(jugadorPerdedor, LP_PERDEDOR)
+    await actualizarVictorias(jugadorGanador)
+    await actualizaDerrotas(jugadorPerdedor)
+    
+async def guardarPartida2Jugadores(puntosJugador1, puntosJugador2, jugadorGanador, jugadorPerdedor):  
+      now = datetime.now().replace(second=0)
+      formatted_date = now.strftime('%Y-%m-%d %H:%M')
+      partida = PartidaDos(
+          jugador1=jugadorGanador,
+          jugador2=jugadorPerdedor,
+          puntosJ1=puntosJugador1,
+          puntosJ2=puntosJugador2,
+          ganador=jugadorGanador,
+          fecha=formatted_date
+      )
+      partida2 = partida.dict()
+      await insertarPartida2(partida2)
 

@@ -1,7 +1,12 @@
+from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from logica_juego import crear_mazo, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre
+from Partidas.logica_juego import crear_mazo, que_cartas_puede_usar_jugador_arrastre, que_jugador_gana_baza, sumar_puntos
+from Partidas.ranking import COINS_GANADOR, LP_GANADOR, LP_PERDEDOR
+from crud import actualizaDerrotas, actualizarCoins, actualizarLP, actualizarVictorias, insertarPartida3
 import random
 import asyncio
+
+from schema import PartidaTres
 
 #TODO quitar esto y las cartas recibidas simuladas
 app = FastAPI()
@@ -151,19 +156,28 @@ async def send_to_all_clients(message: str, connected_clients: dict):
             pass
         
         
-async def send_to_single_client(client_id: str, message: str, connected_clients: dict):
-    websocket = connected_clients.get(client_id)
+async def actualizarEstadisticas3Jugadores(jugadorGanador, jugadorPerdedor1, jugadorPerdedor2): #GANADOR, PERDEDOR
+    await actualizarLP(jugadorGanador, LP_GANADOR)
+    await actualizarCoins(jugadorGanador, COINS_GANADOR)
+    await actualizarLP(jugadorPerdedor1, LP_PERDEDOR)
+    await actualizarLP(jugadorPerdedor2, LP_PERDEDOR)
+    await actualizarVictorias(jugadorGanador)
+    await actualizaDerrotas(jugadorPerdedor1)
+    await actualizaDerrotas(jugadorPerdedor2)
     
-    if websocket is not None:
-        try:
-            await websocket.send_text(message)
-        except WebSocketDisconnect:
-            pass
-    else:
-        print(f"No se encontró el cliente con ID: {client_id}")
-        
-
-def guardarBD():
-    #Guardo los datos en la BD
-    print("Guardar datos en la BD")
+async def guardarPartida3Jugadores(puntosJugador1, puntosJugador2,puntosJugador3, jugadorGanador, jugadorPerdedor1,jugadorPerdedor2):  
+      now = datetime.now().replace(second=0)
+      formatted_date = now.strftime('%Y-%m-%d %H:%M')
+      partida = PartidaTres(
+          jugador1=jugadorGanador,
+          jugador2=jugadorPerdedor1,
+          jugador3=jugadorPerdedor2,
+          puntosJ1=puntosJugador1,
+          puntosJ2=puntosJugador2,
+          puntosJ3=puntosJugador3,
+          ganador=jugadorGanador,
+          fecha=formatted_date
+      )
+      partida3 = partida.dict()
+      await insertarPartida3(partida3)
 
