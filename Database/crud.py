@@ -1,4 +1,4 @@
-from database import dbLogin, dbPartida2, dbPartida3, dbPartida4
+from Database.database import dbLogin, dbPartida2, dbPartida3, dbPartida4
 
 async def actualizarLP(jugador, puntos):
      dbLogin.update_one({'username': jugador}, {'$inc': {'lp': puntos}})

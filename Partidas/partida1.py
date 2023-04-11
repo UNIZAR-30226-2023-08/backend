@@ -225,7 +225,4 @@ async def comprobarGanador(puntosEquipo1, puntosEquipo2):
     else:
         return False
 
-def guardarBD():
-    #Guardo los datos en la BD
-    print("Guardar datos en la BD")
 

@@ -1,17 +1,17 @@
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import random
 import asyncio
 
 from datetime import timedelta
-
+from fastapi.responses import HTMLResponse
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from Partidas.partida3 import actualizarEstadisticas3Jugadores, guardarPartida3Jugadores
-from Partidas.partida4 import guardarPartida4Jugadores
-from database import dbLogin
-from schema import Token
+from Database.database import dbLogin
+from Partidas.partida2 import actualizarEstadisticas2Jugadores
+from chat import ChatManager
 from login import ACCESS_TOKEN_EXPIRE_MINUTES, authenticate_user, create_access_token, get_current_active_user, get_password_hash
-from schema import User, UserInDB
+from Database.schema import User, UserInDB, Token
 
 app = FastAPI()
 global connected_clients_2
@@ -41,8 +41,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    ##await guardarPartida2Jugadores(120, 20, current_user.username, current_user.username)
-    await guardarPartida4Jugadores(120, 50, current_user.username,current_user.username, current_user.username, current_user.username)
+    await actualizarEstadisticas2Jugadores(current_user.username, current_user.username)
     return current_user
 
 @app.post("/register")
@@ -61,10 +60,26 @@ async def register_user(register_user: UserInDB):
 
 #/////////////////////////////////////////////////////////////////////////////////
 
+manager = ChatManager()
+@app.websocket("/ws/{chat_id}/{username}")
+async def websocket_endpoint(websocket: WebSocket, chat_id: int, username: str):
+    await manager.connect(websocket, chat_id, username)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await manager.receive(websocket, chat_id, username, data)
+    except WebSocketDisconnect:
+        await manager.disconnect(websocket, chat_id, username)
 
+@app.get("/")
+async def get():
+    with open("index.html") as f:
+        return HTMLResponse(f.read()) 
 
-
-
+@app.get("/a")
+async def get():
+    with open("chat2.html") as f:
+        return HTMLResponse(f.read()) 
 
 
 

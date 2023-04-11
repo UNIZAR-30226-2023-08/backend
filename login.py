@@ -4,8 +4,8 @@ from datetime import datetime
 from fastapi.security import OAuth2PasswordBearer
 from datetime import timedelta
 from fastapi import Depends,HTTPException, status
-from schema import TokenData, User, UserInDB
-from database import dbLogin
+from Database.schema import TokenData, User, UserInDB
+from Database.database import dbLogin
 import configparser
 # to get a string like this run:
 # openssl rand -hex 32

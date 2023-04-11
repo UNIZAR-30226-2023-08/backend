@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat</title>
+  </head>
+  <body>
+    <h1>Chat</h1>
+    <div id="chat-log"></div>
+    <form>
+      <input type="text" id="message-input" />
+      <button type="button" onclick="sendMessage()">Send</button>
+    </form>
+    <script>
+      const webSocket = new WebSocket("ws://localhost:8000/ws/1/Joaquin");
+
+      webSocket.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        const chatLog = document.getElementById("chat-log");
+        const messageElement = document.createElement("div");
+        messageElement.innerText = `${message.username}: ${message.message}`;
+        chatLog.appendChild(messageElement);
+      };
+
+      function sendMessage() {
+        const messageInput = document.getElementById("message-input");
+        const message = messageInput.value;
+        webSocket.send(message);
+        messageInput.value = "";
+      }
+    </script>
+  </body>
+</html>

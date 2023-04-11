@@ -6,8 +6,8 @@ import asyncio
 
 from Partidas.logica_juego import crear_mazo, que_cartas_puede_usar_jugador_arrastre, que_jugador_gana_baza, repartir_cartas, sumar_puntos
 from Partidas.ranking import COINS_GANADOR, LP_GANADOR, LP_PERDEDOR
-from crud import actualizaDerrotas, actualizarCoins, actualizarLP, actualizarVictorias, insertarPartida2
-from schema import PartidaDos
+from Database.crud import actualizaDerrotas, actualizarCoins, actualizarLP, actualizarVictorias, insertarPartida2
+from Database.schema import PartidaDos
 
 app = FastAPI()
 

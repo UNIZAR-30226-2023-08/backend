@@ -2,11 +2,11 @@ from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from Partidas.logica_juego import crear_mazo, que_cartas_puede_usar_jugador_arrastre, que_jugador_gana_baza, sumar_puntos
 from Partidas.ranking import COINS_GANADOR, LP_GANADOR, LP_PERDEDOR
-from crud import actualizaDerrotas, actualizarCoins, actualizarLP, actualizarVictorias, insertarPartida3
+from Database.crud import actualizaDerrotas, actualizarCoins, actualizarLP, actualizarVictorias, insertarPartida3
 import random
 import asyncio
 
-from schema import PartidaTres
+from Database.schema import PartidaTres
 
 #TODO quitar esto y las cartas recibidas simuladas
 app = FastAPI()

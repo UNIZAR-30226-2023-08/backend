@@ -1,12 +1,12 @@
 from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from Partidas.ranking import COINS_GANADOR, LP_GANADOR, LP_PERDEDOR
-from crud import actualizaDerrotas, actualizarCoins, actualizarLP, actualizarVictorias, insertarPartida4
+from Database.crud import actualizaDerrotas, actualizarCoins, actualizarLP, actualizarVictorias, insertarPartida4
 from Partidas.logica_juego import crear_mazo, repartir_cartas, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre
 import random
 import asyncio
 
-from schema import PartidaCuatro
+from Database.schema import PartidaCuatro
 
 app = FastAPI()
 
