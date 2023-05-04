@@ -133,10 +133,10 @@ class Partida2:
     async def await_message(self, id):
         try:
             if id == "0":
-                mensaje_jugador_0 = await asyncio.wait_for(self.sockets["socket0"].receive_text(), timeout=70)
+                mensaje_jugador_0 = await asyncio.wait_for(self.sockets["socket0"].receive_text(), timeout=20)
                 return mensaje_jugador_0
             else:
-                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket1"].receive_text(), timeout=70)
+                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket1"].receive_text(), timeout=20)
                 return mensaje_jugador_1
         except asyncio.TimeoutError:
             message_fin = {"Desconexion": id}
