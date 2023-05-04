@@ -1,6 +1,5 @@
 from typing import List
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
+from fastapi import WebSocket
 from pydantic import BaseModel
 
 class PlayerMessage(BaseModel):
