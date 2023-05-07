@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from pydantic import BaseModel
 
 class Token(BaseModel):
@@ -8,38 +8,38 @@ class Token(BaseModel):
 
 
 class Partida2(BaseModel):
-    id: str | None = None
-    jugador1: str | None = None
-    jugador2: str | None = None
-    turno: int | None = 0
-    ronda: int | None = 0
-    puntosJ1: int | None = 0
-    puntosJ2: int | None = 0
-    cantadoIdas: List[bool] | None = [False, False, False, False]
-    cantadoVueltas: List[bool]  | None = [False, False, False, False]
-    vueltas: bool | None = False
-    arrastre: bool | None = False
+    id: Optional[str] = None
+    jugador1: Optional[str] = None
+    jugador2: Optional[str] = None
+    turno: Optional[int] = 0
+    ronda: Optional[int] = 0
+    puntosJ1: Optional[int] = 0
+    puntosJ2: Optional[int] = 0
+    cantadoIdas: Optional[List[bool]] = [False, False, False, False]
+    cantadoVueltas: Optional[List[bool]] = [False, False, False, False]
+    vueltas: Optional[bool] = False
+    arrastre: Optional[bool] = False
     cartas: List[Tuple[str, int]] = []
 
 class TokenData(BaseModel): 
-    username: str | None = None
+    username: Optional[str] = None
 
 class RankingUser(BaseModel):
     username: str 
-    lp: int | None = 0 #Puntos de Liga
-    winMatches: int | None = 0
-    looseMatches: int | None = 0
+    lp: Optional[int] = 0 #Puntos de Liga
+    winMatches: Optional[int] = 0
+    looseMatches: Optional[int] = 0
 
 class User(BaseModel):
     username: str 
-    email: str | None = None
-    real_name: str | None = None
-    disabled: bool | None = False
-    lp: int | None = 0 #Puntos de Liga
-    coins: int | None = 0
-    winMatches: int | None = 0
-    looseMatches: int | None = 0
-    winStreak: int | None = 0
+    email: Optional[str] = None
+    real_name: Optional[str] = None
+    disabled: Optional[bool] = False
+    lp: Optional[int] = 0 #Puntos de Liga
+    coins: Optional[int] = 0
+    winMatches: Optional[int] = 0
+    looseMatches: Optional[int] = 0
+    winStreak: Optional[int] = 0
 
 class UserInDB(User):
     hashed_password: str

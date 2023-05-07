@@ -304,8 +304,8 @@ managerPartidas2 = PartidaManager()
 async def websocket_endpoint(websocket: WebSocket, partida_id: str, username: str):
     await managerPartidas2.connect(websocket, partida_id, username)
     try:
-        partida = managerPartidas2.obtenerPartida(partida_id)
-        
+        partida = await managerPartidas2.obtenerPartida(partida_id)
+        print(partida["id"])
        
         while True:
             data = await websocket.receive_text()

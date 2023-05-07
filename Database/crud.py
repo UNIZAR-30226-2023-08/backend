@@ -64,8 +64,6 @@ async def buscarPartidaEmpezada(jugador):
           return None
 
 async def obtenerPartida(idP):
-     # Construct the query
-     query = {{"idPartida": idP}}
-     partida = await dbPartida2Jugadores.find_one(query)
+     partida = await dbPartida2Jugadores.find_one({'id': idP})
      partida_seleccionada = dict(partida) 
      return partida_seleccionada

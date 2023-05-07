@@ -90,5 +90,5 @@ class PartidaManager:
             await partida.enviar_mensaje(message)
     
     async def obtenerPartida(self, partida_id: str):
-        partida = obtenerPartida(partida_id)
+        partida = await obtenerPartida(partida_id)
         return partida
