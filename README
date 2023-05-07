@@ -1,0 +1,19 @@
+///// LOGIN ///////
+
+iniciar sesion = /token
+
+json{
+    username: 
+    password:
+}
+
+///// REGISTER ///////
+
+registrarte = /register
+
+json{
+  "username": "string",
+  "email": "string",
+  "real_name": "string",
+  "hashed_password": "string"
+}
