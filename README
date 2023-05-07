@@ -7,6 +7,20 @@ json{
     password:
 }
 
+DEVUELVE --> 
+Token{  
+        "access_token": access_token,  //GUARDARLO
+        "token_type": "bearer"  
+     }
+
+Ese token a la hora de acceder a métodos con autentificacion tendreis que pasarlos en el header:
+
+headers: {
+    Authorization: `Bearer ${token}`,
+},
+
+
+
 ///// REGISTER ///////
 
 registrarte = /register
