@@ -9,17 +9,22 @@ class Token(BaseModel):
 
 class Partida2(BaseModel):
     id: Optional[str] = None
+    estado: Optional[str] = "UNO"
     jugador1: Optional[str] = None
     jugador2: Optional[str] = None
     turno: Optional[int] = 0
     ronda: Optional[int] = 0
     puntosJ1: Optional[int] = 0
     puntosJ2: Optional[int] = 0
+    manoJ1: List[tuple[str,int]] = []
+    manoJ2: List[tuple[str,int]] = []
     cantadoIdas: Optional[List[bool]] = [False, False, False, False]
     cantadoVueltas: Optional[List[bool]] = [False, False, False, False]
     vueltas: Optional[bool] = False
     arrastre: Optional[bool] = False
     cartas: List[Tuple[str, int]] = []
+    triunfo: Tuple[str, int] = [None, False]
+    cartas_jugadas: Optional[List[Tuple[str,int]]] = [None, None]
 
 class TokenData(BaseModel): 
     username: Optional[str] = None

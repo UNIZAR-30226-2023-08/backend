@@ -57,8 +57,8 @@ class Partida2:
         await self.send_message_to_all_sockets("Comienza partida")  
 
         ##CHAT
-        partida_id = str(randrange(10000, 100000))
-        chat_send = {"chat": partida_id}
+        chat_id = str(randrange(10000, 100000))
+        chat_send = {"chat": chat_id}
         message = json.dumps(chat_send)
         await self.send_message_to_all_sockets(message)
         

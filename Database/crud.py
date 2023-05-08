@@ -67,3 +67,70 @@ async def obtenerPartida(idP):
      partida = await dbPartida2Jugadores.find_one({'id': idP})
      partida_seleccionada = dict(partida) 
      return partida_seleccionada
+
+async def obtenerEstadoPartida(partida_id):
+     partida = await dbPartida2Jugadores.find_one({'id': partida_id})
+     partida_seleccionada = dict(partida) 
+     estado = partida_seleccionada["estado"]
+     return estado
+
+async def cambiar_estado_partida(partida_id, nuevo_estado):
+     await dbPartida2Jugadores.update_one({'id': partida_id}, {'$set': {'estado': nuevo_estado}})
+
+async def obtener_jugador_turno(partida_id):
+     partida = await dbPartida2Jugadores.find_one({'id': partida_id})
+     partida_seleccionada = dict(partida) 
+     turno = partida_seleccionada["turno"]   
+     return turno  
+async def cambiar_jugador_turno(partida_id, turno):
+     await dbPartida2Jugadores.update_one({'id': partida_id}, {'$set': {'turno': turno}})
+
+async def cambiar_mazo_partida(partida_id, nuevo_mazo):
+     await dbPartida2Jugadores.update_one({'id': partida_id}, {'$set': {'cartas': nuevo_mazo}})
+
+async def obtener_mazo_partida(partida_id):
+     partida = await dbPartida2Jugadores.find_one({'id': partida_id})
+     partida_seleccionada = dict(partida) 
+     cartas = partida_seleccionada["cartas"]   
+     return cartas
+
+async def cambiar_mano_jugador(partida_id, jugador, mano):
+     if jugador == 0:
+        await dbPartida2Jugadores.update_one({'id': partida_id}, {'$set': {'manoJ1': mano}})
+     else:
+        await dbPartida2Jugadores.update_one({'id': partida_id}, {'$set': {'manoJ2': mano}}) 
+
+async def obtener_mano_jugador(partida_id, jugador):
+     partida = await dbPartida2Jugadores.find_one({'id': partida_id})
+     partida_seleccionada = dict(partida)
+     if jugador == 0:
+        mano = partida_seleccionada["manoJ1"]
+     else:
+        mano = partida_seleccionada["manoJ2"] 
+     return mano
+
+async def cambiar_triunfo_partida(partida_id, triunfo):
+     await dbPartida2Jugadores.update_one({'id': partida_id}, {'$set': {'triunfo': triunfo}}) 
+
+async def obtener_triufo_partida(partida_id):
+     partida = await dbPartida2Jugadores.find_one({'id': partida_id})
+     partida_seleccionada = dict(partida) 
+     triunfo = partida_seleccionada["triunfo"]   
+     return triunfo
+
+async def cambiar_cartas_jugadas(partida_id, cartas_jugadas):
+     await dbPartida2Jugadores.update_one({'id': partida_id}, {'$set': {'cartas_jugadas': cartas_jugadas}}) 
+
+async def obtener_cartas_jugadas(partida_id):
+     partida = await dbPartida2Jugadores.find_one({'id': partida_id})
+     partida_seleccionada = dict(partida) 
+     cartas_jugadas = partida_seleccionada["cartas_jugadas"]   
+     return cartas_jugadas
+
+async def cambiar_puntos_jugador(partida_id, puntos, jugador):
+     if jugador == 0:
+        await dbPartida2Jugadores.update_one({'id': partida_id}, {'$set': {'puntosJ1': puntos}})
+     else:
+        await dbPartida2Jugadores.update_one({'id': partida_id}, {'$set': {'puntosJ2': puntos}}) 
+
+

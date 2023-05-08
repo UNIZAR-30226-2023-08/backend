@@ -2,6 +2,7 @@ from typing import List
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
 import asyncio
 import uuid
+import json
 from random import randrange
 
 from datetime import timedelta
@@ -11,8 +12,9 @@ from Database.login import authenticate_user
 from Database.database import dbLogin
 from Database.login import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_active_user, get_password_hash
 from Database.schema import User, UserInDB
-from Database.crud import obtenerTopJugadoresRanking
+from Database.crud import cambiar_jugador_turno, obtener_triufo_partida, obtenerTopJugadoresRanking
 from Database.schema import RankingUser
+from modelo_guinote.logica_juego import que_jugador_gana_baza, sumar_puntos
 from modelo_guinote.partida2Jugadores import buscarPartida
 from modelo_guinote.partida2Jugadores import PartidaManager
 from modelo_guinote.chat import ChatManager
@@ -303,9 +305,101 @@ managerPartidas2 = PartidaManager()
 @app.websocket("/partida2/{partida_id}/{username}")
 async def websocket_endpoint(websocket: WebSocket, partida_id: str, username: str):
     await managerPartidas2.connect(websocket, partida_id, username)
+    await managerPartidas2.unirse_partida(websocket, partida_id, username)
     try:
+        ##CHAT##
+        #/ws/{partida_id}/{username} 
+        if(await managerPartidas2.obtenerEstadoPartida(partida_id) == "UNO"):
+            while(await managerPartidas2.obtener_jugadores_partida(partida_id) < 4):
+                print("UNO")
+                await asyncio.sleep(1)
+        
+        if(await managerPartidas2.obtenerEstadoPartida(partida_id) == "DOS"):
+            print("EMPIEZA")
+            print("DOS")
+            if await managerPartidas2.obtener_jugador_turno(partida_id) == username:
+                await managerPartidas2.comenzar_partida(partida_id)
+            else:
+                await asyncio.sleep(2)
+
+            mano = await managerPartidas2.obtener_mano_jugador(partida_id, username)
+            triunfo = await obtener_triufo_partida(partida_id)
+            mano_send = {"Cartas": mano, "Triunfo": triunfo}
+            await managerPartidas2.enviar_mensaje(mano_send, websocket)
+
+            if await managerPartidas2.obtener_jugador_turno(partida_id) == username:
+                await managerPartidas2.cambiarEstadoPartida(partida_id, "TRES")
+            else:
+                await asyncio.sleep(2)
+        
+        if await managerPartidas2.obtenerEstadoPartida(partida_id) == "TRES":
+
+            if await managerPartidas2.obtener_jugador_turno(partida_id) == username:
+                cartas_jugadas = await managerPartidas2.obtener_cartas_jugadas(partida_id)
+                mano_send = {"0": cartas_jugadas[0], "1": cartas_jugadas[1] ,"Turno": username, "Triunfo": triunfo}
+                await managerPartidas2.enviar_mensaje(mano_send, websocket)
+                carta = await managerPartidas2.esperar_mensaje(websocket)
+                palo, valor = carta.split("-")
+                carta_tupla = [str(palo), int(valor)]
+                mano.remove(carta_tupla)
+                await managerPartidas2.cambiar_mano_jugador(partida_id, username, mano)
+
+                cartas_jugadas[0] = carta_tupla
+                await managerPartidas2.cambiar_cartas_jugadas(partida_id, cartas_jugadas)
+                await managerPartidas2.cambiar_jugador_turno(partida_id)
+
+                while await managerPartidas2.obtener_jugador_turno(partida_id) != username:
+                    await asyncio.sleep(1)
+                
+            else:
+                while await managerPartidas2.obtener_jugador_turno(partida_id) != username:
+                    await asyncio.sleep(1)
+                cartas_jugadas = await managerPartidas2.obtener_cartas_jugadas(partida_id)
+                mano_send = {"0": cartas_jugadas[0], "1": cartas_jugadas[1] ,"Turno": username, "Triunfo": triunfo}
+                await managerPartidas2.enviar_mensaje(mano_send, websocket)
+                carta = await managerPartidas2.esperar_mensaje(websocket)
+                palo, valor = carta.split("-")
+                carta_tupla = [str(palo), int(valor)]
+                mano.remove(carta_tupla)
+                await managerPartidas2.cambiar_mano_jugador(partida_id, username, mano)
+
+                cartas_jugadas[1] = carta_tupla
+                await managerPartidas2.cambiar_cartas_jugadas(partida_id, cartas_jugadas)
+                await managerPartidas2.cambiar_jugador_turno(partida_id)
+                ##Controlar resultado
+
+            cartas_jugadas = await managerPartidas2.obtener_cartas_jugadas(partida_id)
+            mano_send = {"0": cartas_jugadas[0], "1": cartas_jugadas[1] ,"Turno": None, "Triunfo": triunfo}
+            await managerPartidas2.enviar_mensaje(mano_send, websocket)  
+
+            if await managerPartidas2.obtener_jugador_turno(partida_id) == username:
+                carta_gandora = que_jugador_gana_baza(cartas_jugadas, triunfo) 
+                indice_ganador = cartas_jugadas.index(carta_gandora)
+                #Sumo puntos al jugador que ha ganado la baza
+                if await managerPartidas2.obtener_turno(partida_id) == indice_ganador:
+                    puntosJugador0 = sumar_puntos(cartas_jugadas)
+                    await managerPartidas2.cambiar_puntos_jugador(partida_id, puntosJugador0, indice_ganador)
+                    message_ganador = {"Ganador": "0"}
+                    await managerPartidas2.enviar_mensaje_todos(partida_id, message_ganador)
+                    puede_cantar_cambiar = 0
+                else:
+                    puntosJugador1 = sumar_puntos(cartas_jugadas)
+                    await managerPartidas2.cambiar_puntos_jugador(partida_id, puntosJugador1, indice_ganador)
+                    message_ganador = {"Ganador": "1"}
+                    await managerPartidas2.enviar_mensaje_todos(partida_id, message_ganador)
+                    await cambiar_jugador_turno(partida_id)
+                    puede_cantar_cambiar = 1
+            else:
+                await asyncio.sleep(2)
+                
+
+
+
+
         partida = await managerPartidas2.obtenerPartida(partida_id)
-        print(partida["id"])
+
+        await managerPartidas2.cambiarEstadoPartida(partida_id, "UNO")
+
        
         while True:
             data = await websocket.receive_text()
