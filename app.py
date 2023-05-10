@@ -23,6 +23,8 @@ from modelo_guinote.chat import ChatManager
 from modelo_guinote.partida2 import Partida2
 from modelo_guinote.partida3 import Partida3
 from modelo_guinote.partida4 import Partida4
+from modelo_guinote.partida2torneo import Partida2Torneo
+
 
 app = FastAPI()
 
