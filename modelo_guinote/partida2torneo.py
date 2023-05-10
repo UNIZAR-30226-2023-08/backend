@@ -89,7 +89,7 @@ class Partida2Torneo:
                 mano_send = {"Ganador Partida": 1, "0": puntosJugador0 ,"1": puntosJugador1}
                 message = json.dumps(mano_send)
                 await self.send_message_to_all_sockets(message)
-               return self.client_list[1]
+                return self.client_list[1]
                 break
             elif puntosJugador0 > 100 and puntosJugador1 > 100:
                 if orden[indice_ganador] == orden_inicial[0]: 
