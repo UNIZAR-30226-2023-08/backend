@@ -522,6 +522,28 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             await asyncio.sleep(1)
     except WebSocketDisconnect:
         pass
+    
+partidas2_IA = {}
+      
+#Partida de 2 jugadores IA      
+@app.websocket("/partidaIA/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    await websocket.accept()
+
+    partida_id = str(uuid.uuid4())
+    partida_disponible = PartidaIA()
+    partidas2_IA[partida_id] = partida_disponible
+
+    jugador_id = f"socket{partida_disponible.jugadores}"
+    await partida_disponible.add_player(websocket, client_id)
+
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        await partida_disponible.remove_player(jugador_id)
+        if partida_disponible.jugadores == 0:
+            partidas2_IA.pop(partida_id)
 
 
 
