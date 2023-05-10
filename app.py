@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import uuid
 import json
@@ -24,6 +25,20 @@ from modelo_guinote.partida3 import Partida3
 from modelo_guinote.partida4 import Partida4
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 partidas2_privadas = {}
 partidas2_publicas = {}
@@ -297,6 +312,11 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, username: str):
  #        
 @app.get("/ranking", response_model = List[RankingUser])
 async def read_users_me(limite_lista: int, current_user: User = Depends(get_current_active_user)):
+    if limite_lista < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="El numero no es correcto"
+        )
     top_users = await obtenerTopJugadoresRanking(limite_lista)
     return top_users
 

@@ -17,8 +17,26 @@ Ese token a la hora de acceder a métodos con autentificacion tendreis que pasar
 
 headers: {
     Authorization: `Bearer ${token}`,
-},
+}
 
+//// EJEMPLO//////
+import requests
+
+url = 'https://ejemplo.com/api/endpoint'
+token = 'TU_TOKEN_DE_AUTENTICACION'
+parametro = 42
+
+headers = {'Authorization': f'Bearer {token}'}
+params = {'parametro': parametro}
+
+response = requests.get(url, headers=headers, params=params)
+
+if response.status_code == 200:
+    print('La solicitud se realizó correctamente.')
+else:
+    print('Error:', response.status_code)
+
+    
 
 
 ///// REGISTER ///////
