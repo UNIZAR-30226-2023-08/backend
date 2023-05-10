@@ -274,8 +274,8 @@ class Partida4:
         return mazo, manos
 
     async def arrastre(self, orden_inicial, orden, triunfo, puntosJugador0_2, puntosJugador1_3, manos):
-        cartas_jugadas = [None, None, None]
-        cartas_jugadas_mandar = [None, None, None]
+        cartas_jugadas = [None, None, None, None]
+        cartas_jugadas_mandar = [None, None, None, None]
         puntuacion_cartas = []
         global message_socket
         
