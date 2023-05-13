@@ -69,7 +69,7 @@ class PartidaIA:
             for i in range(6):
                 await self.mandar_manos(orden_inicial, manos)
                 orden, manos, puntosJugador0_2, puntosJugador1_3, indice_ganador, puede_cantar_cambiar = await self.arrastre(orden_inicial, orden, triunfo, puntosJugador0_2, puntosJugador1_3, manos)
-                cantado0_2, cantado1_3, puntosJugador0_2, puntosJugador1_3, triunfo, puede_cantar_cambiar = await self.cantar_cambiar_jugador(manos, triunfo, cantado0_2, cantado1_3, puntosJugador0_2, puntosJugador1_3, puede_cantar_cambiar, arrastre)
+                cantado0_2, cantado1_3, puntosJugador0_2, puntosJugador1_3, triunfo = await self.cantar_cambiar_jugador(manos, triunfo, cantado0_2, cantado1_3, puntosJugador0_2, puntosJugador1_3, puede_cantar_cambiar, arrastre)
                 if vueltas: 
                     ganador = self.comprobarGanador(puntosJugador0_2, puntosJugador1_3)
                     if ganador: break
@@ -277,9 +277,6 @@ class PartidaIA:
                 carta_tupla = (palo, int(valor))
             else:
                 carta_tupla = random.choice(cartas_posibles)
-                    
-            palo, valor = carta.split("-") 
-            carta_tupla = (palo, int(valor))
                     
             manos[orden[i]].remove(carta_tupla)
             cartas_jugadas[i] = carta_tupla
