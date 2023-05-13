@@ -1,5 +1,5 @@
 from Database.database import dbLogin, dbPartida2, dbPartida3, dbPartida4, dbPartida2Jugadores
-from  Database.schema import Partida2
+from  Database.schema import Partida2, User
 
 async def actualizarLP(jugador, puntos):
      dbLogin.update_one({'username': jugador}, {'$inc': {'lp': puntos}})
@@ -31,6 +31,14 @@ async def obtenerTopJugadoresRanking(limite: int):
      top_users = await dbLogin.find().sort("lp", -1).limit(limite).to_list(length=limite)
      top_users = [{key: user[key] for key in user if key in ['username', 'lp', 'winMatches', 'looseMatches']} for user in top_users]
      return top_users
+
+async def obtenerJugador(username: str):
+     user = await dbLogin.find_one({"username": username})
+     if user:
+          user_seleccionado = {k: v for k, v in user.items() if k in ['username', 'lp', 'winMatches', 'looseMatches']}
+          return user_seleccionado
+     else:
+          return None
 
 ##/////////////////////PARTIDA 2 JUGADORES ///////////////////////
 

@@ -13,7 +13,7 @@ from Database.login import authenticate_user
 from Database.database import dbLogin
 from Database.login import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_active_user, get_password_hash
 from Database.schema import User, UserInDB
-from Database.crud import cambiar_jugador_turno, obtener_triufo_partida, obtenerTopJugadoresRanking
+from Database.crud import cambiar_jugador_turno, obtener_triufo_partida, obtenerJugador, obtenerTopJugadoresRanking
 from Database.schema import RankingUser
 from modelo_guinote.logica_juego import que_jugador_gana_baza, sumar_puntos
 from modelo_guinote.partida2Jugadores import buscarPartida
@@ -81,11 +81,12 @@ async def register_user(register_user: UserInDB):
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    top_users = await obtenerTopJugadoresRanking(10)
-    for user in top_users:
-        print(user["username"], user["lp"])
-
     return current_user
+
+@app.get("/user/{username}")
+async def read_users_stadistics(username: str, current_user: User = Depends(get_current_active_user)):
+    usuario = await obtenerJugador(username)
+    return usuario
 
 #/////////////////////////////////////////////////////////////////////////////////
 
