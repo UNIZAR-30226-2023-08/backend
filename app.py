@@ -23,6 +23,9 @@ from modelo_guinote.chat import ChatManager
 from modelo_guinote.partida2 import Partida2
 from modelo_guinote.partida3 import Partida3
 from modelo_guinote.partida4 import Partida4
+from modelo_guinote.partida2torneo import Partida2Torneo
+from modelo_guinote.partidaIA import PartidaIA
+
 
 app = FastAPI()
 
@@ -433,6 +436,117 @@ async def websocket_endpoint(websocket: WebSocket, partida_id: str, username: st
 async def read_users_me(idJugador:str, current_user: User = Depends(get_current_active_user)):
     id = await buscarPartida(idJugador)
     return id
+
+
+
+partidas_torneo = {}
+
+class Torneo:
+    def __init__(self):
+        self.partidas_inicial = []
+        self.partidas_final = None
+        self.ganadores = []
+        self.lista_de_espera = []
+        self.websocket_ganadores = {}
+
+    async def send_message_to_socket(self, websocket: WebSocket, message: str):
+        await websocket.send_text(message)
+
+    async def add_player(self, websocket: WebSocket, client_id: str):
+        self.lista_de_espera.append((websocket, client_id))
+
+        # Enviar mensaje a todos los jugadores con la lista de client_id actualizada
+        message = json.dumps({str(i): (self.lista_de_espera[i][1] if i < len(self.lista_de_espera) else None) for i in range(4)})
+        for ws, _ in self.lista_de_espera:
+            await self.send_message_to_socket(ws, message)
+
+        if len(self.lista_de_espera) >= 4:
+            partidas_tasks = []
+            jugadores_partidas_iniciales = []
+            for _ in range(2):
+                jugadores_partidas_iniciales.extend(self.lista_de_espera[:2])
+                self.lista_de_espera = self.lista_de_espera[2:]
+
+                partida = Partida2Torneo()
+                self.partidas_inicial.append(partida)
+                partidas_tasks.append(partida.add_player(jugadores_partidas_iniciales[-2][0], jugadores_partidas_iniciales[-2][1]))
+                partidas_tasks.append(partida.add_player(jugadores_partidas_iniciales[-1][0], jugadores_partidas_iniciales[-1][1]))
+
+            self.ganadores = await asyncio.gather(*partidas_tasks)
+
+            for i in range(0, len(self.ganadores), 2):
+                if self.ganadores[i] is not None:
+                    self.websocket_ganadores[self.ganadores[i]] = jugadores_partidas_iniciales[i][0]
+                if self.ganadores[i + 1] is not None:
+                    self.websocket_ganadores[self.ganadores[i + 1]] = jugadores_partidas_iniciales[i + 1][0]
+
+            self.ganadores = [ganador for ganador in self.ganadores if ganador is not None]
+            
+            
+            # Enviar mensaje a todos los
+            message = json.dumps({"Ganador Partida1": self.ganadores[0], "Ganador Partida2": self.ganadores[1]})
+            for ws, _ in jugadores_partidas_iniciales:
+                await self.send_message_to_socket(ws, message)
+
+            if len(self.ganadores) == 2:
+                partida_final = Partida2Torneo()
+                self.partidas_final = partida_final
+                ws_ganador1 = self.websocket_ganadores[self.ganadores[0]]
+                ws_ganador2 = self.websocket_ganadores[self.ganadores[1]]
+                ganador_final = await partida_final.add_player(ws_ganador1, self.ganadores[0])
+                ganador_final = await partida_final.add_player(ws_ganador2, self.ganadores[1])
+
+                # Enviar mensaje a todos los
+                message = json.dumps({"Ganador Torneo: ": ganador_final})
+                for ws, _ in jugadores_partidas_iniciales:
+                    await self.send_message_to_socket(ws, message)
+
+
+@app.websocket("/torneo/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    await websocket.accept()
+
+    torneo_disponible = None
+    for torneo in partidas_torneo.values():
+        if len(torneo.partidas_inicial) < 2 or any(partida.jugadores < 2 for partida in torneo.partidas_inicial):
+            torneo_disponible = torneo
+            break
+
+    if not torneo_disponible:
+        torneo_id = str(uuid.uuid4())
+        torneo_disponible = Torneo()
+        partidas_torneo[torneo_id] = torneo_disponible
+        
+    await torneo_disponible.add_player(websocket, client_id)
+
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        pass
+    
+partidas2_IA = {}
+      
+#Partida de 2 jugadores IA      
+@app.websocket("/partidaIA/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    await websocket.accept()
+
+    partida_id = str(uuid.uuid4())
+    partida_disponible = PartidaIA()
+    partidas2_IA[partida_id] = partida_disponible
+
+    jugador_id = f"socket{partida_disponible.jugadores}"
+    await partida_disponible.add_player(websocket, client_id)
+
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        await partida_disponible.remove_player(jugador_id)
+        if partida_disponible.jugadores == 0:
+            partidas2_IA.pop(partida_id)
+
 
 
 
