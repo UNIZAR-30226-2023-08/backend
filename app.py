@@ -86,7 +86,7 @@ async def register_user(register_user: UserInDB):
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
-@app.get("/user/{username}")
+@app.get("/user/{username}", response_model = RankingUser)
 async def read_users_stadistics(username: str, current_user: User = Depends(get_current_active_user)):
     usuario = await obtenerJugador(username)
     return usuario
