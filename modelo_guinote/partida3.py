@@ -58,7 +58,7 @@ class Partida3:
         await self.send_message_to_all_sockets(message)
 
         manos = []
-        triunfo, manos = await self.comienzo_partida()
+        mazo, triunfo, manos = await self.comienzo_partida()
         
         perdedor = 0
         
@@ -71,7 +71,7 @@ class Partida3:
             orden, manos, puntosJugador0, puntosJugador1, puntosJugador2, puede_cantar_cambiar = await self.arrastre(
                 orden_inicial, orden, triunfo, puntosJugador0, puntosJugador1, puntosJugador2, manos)
             cantado0, cantado1, cantado2, puntosJugador0, puntosJugador1, puntosJugador2, triunfo = await self.cantar_cambiar_jugador(manos, triunfo, cantado0, cantado1, cantado2, puntosJugador0, puntosJugador1, puntosJugador2, puede_cantar_cambiar)
-
+            mazo, manos = await self.repartir(orden_inicial, mazo, triunfo, manos)
             
         if puntosJugador0 == puntosJugador1 or puntosJugador0 == puntosJugador2 or puntosJugador1 == puntosJugador2:
             mano_send = {"Perdedor": None, "0": puntosJugador0 ,"1": puntosJugador1, "2": puntosJugador2}
@@ -154,25 +154,17 @@ class Partida3:
     async def comienzo_partida(self):
         mazo = crear_mazo()
         random.shuffle(mazo)
-        
-        mano1 = mazo[:len(mazo)//3]
-        mano2 = mazo[len(mazo)//3:2*(len(mazo)//3)]
-        mano3 = mazo[2*(len(mazo)//3):]
-        triunfo = random.choice(mano3)
-        mano3.remove(triunfo)
-        
-        manos = []
-        manos.append(mano1)
-        manos.append(mano2)
-        manos.append(mano3)
+        manos, mazo = repartir_cartas(mazo, 3)
+        triunfo = mazo[0]
+        mazo.remove(triunfo)
         
         # Repartir manos a los jugadores
         for i in range(3):
             mano_send = {"Cartas": manos[i], "Triunfo": triunfo ,"Jugador": i}
             message = json.dumps(mano_send)
             await self.send_message_to_socket(str(i), message)
-            
-        return triunfo, manos
+        
+        return mazo, triunfo, manos
 
     async def repartir(self, orden_inicial, mazo, triunfo, manos):
         for i in orden_inicial:
@@ -284,6 +276,7 @@ class Partida3:
             
             
     async def cantar_cambiar_jugador(self, manos, triunfo, cantado0, cantado1, cantado2, puntosJugador0, puntosJugador1, puntosJugador2,  puede_cantar_cambiar):
+        cambiado_por_juagdor = 10
         posibilidad = [False, False, False]
         for i in range(3):
             palo, valor = triunfo
@@ -411,7 +404,7 @@ class Partida3:
         for a in range(3):
             await self.send_message_to_socket(str(a), message)
             
-        return cantado0, cantado1, puntosJugador0, puntosJugador1, puntosJugador2, triunfo
+        return cantado0, cantado1, cantado2,puntosJugador0, puntosJugador1, puntosJugador2, triunfo
     
     async def actualizarEstadisticas3Jugadores(jugadorGanador1, jugadorGanador2, jugadorPerdedor): #GANADOR, PERDEDOR
         await actualizarLP(jugadorGanador1, LP_GANADOR)
