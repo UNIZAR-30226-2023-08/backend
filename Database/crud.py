@@ -8,11 +8,11 @@ async def actualizarCoins(jugador, coins):
      dbLogin.update_one({'username': jugador}, {'$inc': {'coins': coins}})
 
 async def actualizarVictorias(jugador):
-     dbLogin.update_one({'username': jugador}, {'$inc': {'winMatches': 1}})
+     dbLogin.update_one({'username': jugador}, {'$inc': {'wonMatches': 1}})
      dbLogin.update_one({'username': jugador}, {'$inc': {'winStreak': 1}})
 
 async def actualizaDerrotas(jugador):
-     dbLogin.update_one({'username': jugador}, {'$inc': {'looseMatches': 1}})
+     dbLogin.update_one({'username': jugador}, {'$inc': {'lostMatches': 1}})
      dbLogin.update_one({'username': jugador}, {'$set': {'winStreak': 0}})
 
 ##///////GUARDAR PARTIDAS ACABADAS //////////////////////
@@ -29,13 +29,13 @@ async def insertarPartida4(partida4):
 ##////////////////////////////////////////////////////////
 async def obtenerTopJugadoresRanking(limite: int):
      top_users = await dbLogin.find().sort("lp", -1).limit(limite).to_list(length=limite)
-     top_users = [{key: user[key] for key in user if key in ['username', 'lp', 'winMatches', 'looseMatches']} for user in top_users]
+     top_users = [{key: user[key] for key in user if key in ['username', 'lp', 'wonMatches', 'lostMatches','winStreak']} for user in top_users]
      return top_users
 
 async def obtenerJugador(username: str):
      user = await dbLogin.find_one({"username": username})
      if user:
-          user_seleccionado = {k: v for k, v in user.items() if k in ['username', 'lp', 'winMatches', 'looseMatches']}
+          user_seleccionado = {k: v for k, v in user.items() if k in ['username', 'lp', 'wonMatches', 'lostMatches', 'winStreak']}
           return user_seleccionado
      else:
           return None

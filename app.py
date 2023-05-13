@@ -89,7 +89,22 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @app.get("/user/{username}", response_model = RankingUser)
 async def read_users_stadistics(username: str, current_user: User = Depends(get_current_active_user)):
     usuario = await obtenerJugador(username)
+    if usuario == None:
+        raise HTTPException(
+            status_code=400,
+            detail="El usuario no existe"
+        )
     return usuario
+
+@app.get("/ranking", response_model = List[RankingUser])
+async def read_users_me(limite_lista: int, current_user: User = Depends(get_current_active_user)):
+    if limite_lista < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="El numero no es correcto"
+        )
+    top_users = await obtenerTopJugadoresRanking(limite_lista)
+    return top_users
 
 #/////////////////////////////////////////////////////////////////////////////////
 
@@ -313,16 +328,7 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, username: str):
         await manager.disconnect(websocket, chat_id, username)
         
  ##//////////////////////////CHAT/////////////////////////////////////////////////
- #        
-@app.get("/ranking", response_model = List[RankingUser])
-async def read_users_me(limite_lista: int, current_user: User = Depends(get_current_active_user)):
-    if limite_lista < 0:
-        raise HTTPException(
-            status_code=400,
-            detail="El numero no es correcto"
-        )
-    top_users = await obtenerTopJugadoresRanking(limite_lista)
-    return top_users
+ 
 
 
 managerPartidas2 = PartidaManager()

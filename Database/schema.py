@@ -32,8 +32,9 @@ class TokenData(BaseModel):
 class RankingUser(BaseModel):
     username: str 
     lp: Optional[int] = 0 #Puntos de Liga
-    winMatches: Optional[int] = 0
-    looseMatches: Optional[int] = 0
+    wonMatches: Optional[int] = 0
+    lostMatches: Optional[int] = 0
+    winStreak: Optional[int] = 0
 
 class User(BaseModel):
     username: str 
@@ -42,8 +43,8 @@ class User(BaseModel):
     disabled: Optional[bool] = False
     lp: Optional[int] = 0 #Puntos de Liga
     coins: Optional[int] = 0
-    winMatches: Optional[int] = 0
-    looseMatches: Optional[int] = 0
+    wonMatches: Optional[int] = 0
+    lostMatches: Optional[int] = 0
     winStreak: Optional[int] = 0
 
 class UserInDB(User):
