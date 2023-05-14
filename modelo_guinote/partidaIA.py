@@ -449,8 +449,8 @@ class PartidaIA:
             cambiar = await self.await_message_siete(str(x))
             final = time.time()
             if cambiar == "True":
-                manos[i].remove((palo, 7))
-                manos[i].append(triunfo)
+                manos[x].remove((palo, 7))
+                manos[x].append(triunfo)
                 triunfo = (palo, 7)
                 cambiado_por_jugador = i
                 segundos = final - inicio
