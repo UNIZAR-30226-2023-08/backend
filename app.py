@@ -75,10 +75,22 @@ async def register_user(register_user: UserInDB):
     user_dict.pop("hashed_password")
     user_dict["hashed_password"] = hashed_password
     count = await dbLogin.count_documents({"username": register_user.username})
+    count2 = await dbLogin.count_documents({"email": register_user.email})
     if count > 0:
         raise HTTPException(
             status_code=400,
             detail="El nombre de usuario ya está en uso"
+        )
+    if count2 > 0:
+        raise HTTPException(
+            status_code=400,
+            detail="El correo electrónico ya está en uso"
+        )
+    
+    if len(register_user.username) < 4 and len(register_user.username) > 12:
+        raise HTTPException(
+            status_code=400,
+            detail="El usuario debe tener entre 4 y 12 caácteres"
         )
     dbLogin.insert_one(user_dict)
 
@@ -92,7 +104,7 @@ async def read_users_stadistics(username: str, current_user: User = Depends(get_
     if usuario == None:
         raise HTTPException(
             status_code=400,
-            detail="El usuario no existe"
+            detail="El usuario no existe-u"
         )
     return usuario
 

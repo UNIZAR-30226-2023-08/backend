@@ -88,26 +88,26 @@ class Partida4:
                 mano_send = {"Ganador Partida": [0,2], "0": puntosJugador0_2 ,"1": puntosJugador1_3, "2": puntosJugador0_2 ,"3": puntosJugador1_3}
                 message = json.dumps(mano_send)                        
                 await self.send_message_to_all_sockets(message)
-                await self.fin_partida(self, puntosJugador0_2, puntosJugador1_3, self.client_list[0] ,self.client_list[2], self.client_list[1],self.client_list[3])
+                await self.fin_partida(puntosJugador0_2, puntosJugador1_3, self.client_list[0] ,self.client_list[2], self.client_list[1],self.client_list[3])
                 break
             elif puntosJugador1_3 > 100 and puntosJugador0_2 < 100:
                 mano_send = {"Ganador Partida": [1,3], "0": puntosJugador0_2 ,"1": puntosJugador1_3, "2": puntosJugador0_2 ,"3": puntosJugador1_3}
                 message = json.dumps(mano_send)
                 await self.send_message_to_all_sockets(message)
-                await self.fin_partida(self, puntosJugador1_3, puntosJugador0_2, self.client_list[1] ,self.client_list[3], self.client_list[0],self.client_list[2])
+                await self.fin_partida(puntosJugador1_3, puntosJugador0_2, self.client_list[1] ,self.client_list[3], self.client_list[0],self.client_list[2])
                 break
             elif puntosJugador0_2 > 100 and puntosJugador1_3 > 100:
                 if orden[indice_ganador] == orden_inicial[0]: 
                     mano_send = {"Ganador Partida": [0,2], "0": puntosJugador0_2 ,"1": puntosJugador1_3, "2": puntosJugador0_2 ,"3": puntosJugador1_3}
                     message = json.dumps(mano_send)  
                     await self.send_message_to_all_sockets(message)
-                    await self.fin_partida(self, puntosJugador0_2, puntosJugador1_3, self.client_list[0] ,self.client_list[2], self.client_list[1],self.client_list[3])
+                    await self.fin_partida(puntosJugador0_2, puntosJugador1_3, self.client_list[0] ,self.client_list[2], self.client_list[1],self.client_list[3])
                     break
                 else:
                     mano_send = {"Ganador Partida": [1,3], "0": puntosJugador0_2 ,"1": puntosJugador1_3, "2": puntosJugador0_2 ,"3": puntosJugador1_3}
                     message = json.dumps(mano_send)
                     await self.send_message_to_all_sockets(message)
-                    await self.fin_partida(self, puntosJugador1_3, puntosJugador0_2, self.client_list[1] ,self.client_list[3], self.client_list[0],self.client_list[2])
+                    await self.fin_partida(puntosJugador1_3, puntosJugador0_2, self.client_list[1] ,self.client_list[3], self.client_list[0],self.client_list[2])
                     break
             else:
                 vueltas = True

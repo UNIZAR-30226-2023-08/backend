@@ -84,18 +84,18 @@ class Partida3:
             message = json.dumps(mano_send)                        
             await self.send_message_to_all_sockets(message)
             await self.guardarPartida3Jugadores(puntosJugador0, puntosJugador1,puntosJugador2, self.client_list[0], self.client_list[1],self.client_list[2])
-            await self.fin_partida(self, puntosJugador0, puntosJugador1, puntosJugador2, self.client_list[0], self.client_list[1],self.client_list[2])
+            await self.fin_partida(puntosJugador0, puntosJugador1, puntosJugador2, self.client_list[0], self.client_list[1],self.client_list[2])
 
         elif puntosJugador0 < puntosJugador1 < puntosJugador2  or puntosJugador2 < puntosJugador1 < puntosJugador0:
             mano_send = {"Perdedor": 1, "0": puntosJugador0 ,"1": puntosJugador1, "2": puntosJugador2}
             message = json.dumps(mano_send)                        
             await self.send_message_to_all_sockets(message)
-            await self.fin_partida(self, puntosJugador0, puntosJugador1, puntosJugador2, self.client_list[1], self.client_list[0],self.client_list[2])
+            await self.fin_partida(puntosJugador0, puntosJugador1, puntosJugador2, self.client_list[1], self.client_list[0],self.client_list[2])
         else:
             mano_send = {"Perdedor": 2, "0": puntosJugador0 ,"1": puntosJugador1, "2": puntosJugador2}
             message = json.dumps(mano_send)                        
             await self.send_message_to_all_sockets(message)
-            await self.fin_partida(self, puntosJugador0, puntosJugador1, puntosJugador2, self.client_list[2], self.client_list[1],self.client_list[0])
+            await self.fin_partida(puntosJugador0, puntosJugador1, puntosJugador2, self.client_list[2], self.client_list[1],self.client_list[0])
             
         
     async def remove_player(self, jugador_id: str):
