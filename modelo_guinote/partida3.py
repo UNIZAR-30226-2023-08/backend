@@ -276,7 +276,7 @@ class Partida3:
             
             
     async def cantar_cambiar_jugador(self, manos, triunfo, cantado0, cantado1, cantado2, puntosJugador0, puntosJugador1, puntosJugador2,  puede_cantar_cambiar):
-        cambiado_por_juagdor = 10
+        cambiado_por_jugador = 10
         posibilidad = [False, False, False]
         for i in range(3):
             palo, valor = triunfo
@@ -441,3 +441,4 @@ class Partida3:
     async def fin_partida(self, puntosJugador1, puntosJugador2,puntosJugador3, jugadorPerdedor, jugadorGanador1, jugadorGanador2):
         await self.guardarPartida3Jugadores(puntosJugador1, puntosJugador2,puntosJugador3, jugadorPerdedor, jugadorGanador1,jugadorGanador2)
         await self.actualizarEstadisticas3Jugadores(jugadorGanador1, jugadorGanador2, jugadorPerdedor)
+        
