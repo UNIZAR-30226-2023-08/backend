@@ -21,6 +21,7 @@ from modelo_guinote.partida2Jugadores import PartidaManager
 from modelo_guinote.chat import ChatManager
 
 from modelo_guinote.partida2 import Partida2
+from modelo_guinote.partida2_cambiar7 import Partida2_cambiar7
 from modelo_guinote.partida3 import Partida3
 from modelo_guinote.partida4 import Partida4
 from modelo_guinote.partida2torneo import Partida2Torneo
