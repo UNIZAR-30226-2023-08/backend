@@ -21,6 +21,7 @@ from modelo_guinote.partida2Jugadores import PartidaManager
 from modelo_guinote.chat import ChatManager
 
 from modelo_guinote.partida2 import Partida2
+from modelo_guinote.partida2_cambiar7 import Partida2_cambiar7
 from modelo_guinote.partida3 import Partida3
 from modelo_guinote.partida4 import Partida4
 from modelo_guinote.partida2torneo import Partida2Torneo
@@ -45,6 +46,7 @@ app.add_middleware(
 
 partidas2_privadas = {}
 partidas2_publicas = {}
+partidas2_cambiar7_publicas = {}
 partidas3_privadas = {}
 partidas3_publicas = {}
 partidas4_privadas = {}
@@ -564,6 +566,35 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         await partida_disponible.remove_player(jugador_id)
         if partida_disponible.jugadores == 0:
             partidas2_IA.pop(partida_id)
+            
+          
+        
+#Partida de 2 jugadores        
+@app.websocket("/partidasimular/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    await websocket.accept()
+
+    partida_disponible = None
+    for partida in partidas2_cambiar7_publicas.values():
+        if partida.jugadores < 2:
+            partida_disponible = partida
+            break
+
+    if not partida_disponible:
+        partida_id = str(uuid.uuid4())
+        partida_disponible = Partida2_cambiar7()
+        partidas2_cambiar7_publicas[partida_id] = partida_disponible
+
+    jugador_id = f"socket{partida_disponible.jugadores}"
+    await partida_disponible.add_player(websocket, client_id)
+
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        await partida_disponible.remove_player(jugador_id)
+        if partida_disponible.jugadores == 0:
+            partidas2_cambiar7_publicas.pop(partida_id)
 
 
 
