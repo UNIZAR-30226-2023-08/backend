@@ -437,14 +437,14 @@ class Partida2:
         return cantado0, cantado1, puntosJugador0, puntosJugador1, triunfo
     
     
-    async def actualizarEstadisticas2Jugadores(jugadorGanador, jugadorPerdedor): #GANADOR, PERDEDOR
+    async def actualizarEstadisticas2Jugadores(self, jugadorGanador, jugadorPerdedor): #GANADOR, PERDEDOR
         await actualizarLP(jugadorGanador, LP_GANADOR)
         await actualizarCoins(jugadorGanador, COINS_GANADOR)
         await actualizarLP(jugadorPerdedor, LP_PERDEDOR)
         await actualizarVictorias(jugadorGanador)
         await actualizaDerrotas(jugadorPerdedor)
     
-    async def guardarPartida2Jugadores(puntosJugador1, puntosJugador2, jugadorGanador, jugadorPerdedor):  
+    async def guardarPartida2Jugadores(self, puntosJugador1, puntosJugador2, jugadorGanador, jugadorPerdedor):  
         now = datetime.now().replace(second=0)
         formatted_date = now.strftime('%Y-%m-%d %H:%M')
         partida = PartidaDos(

@@ -406,7 +406,7 @@ class Partida3:
             
         return cantado0, cantado1, cantado2,puntosJugador0, puntosJugador1, puntosJugador2, triunfo
     
-    async def actualizarEstadisticas3Jugadores(jugadorGanador1, jugadorGanador2, jugadorPerdedor): #GANADOR, PERDEDOR
+    async def actualizarEstadisticas3Jugadores(self, jugadorGanador1, jugadorGanador2, jugadorPerdedor): #GANADOR, PERDEDOR
         await actualizarLP(jugadorGanador1, LP_GANADOR)
         await actualizarCoins(jugadorGanador1, COINS_GANADOR)
         await actualizarLP(jugadorGanador2, LP_GANADOR)
@@ -417,7 +417,7 @@ class Partida3:
         await actualizarVictorias(jugadorGanador2)
         await actualizaDerrotas(jugadorPerdedor)
         
-    async def guardarPartida3Jugadores(puntosJugador1, puntosJugador2,puntosJugador3, jugadorPerdedor, jugadorGanador1,jugadorGanador2):  
+    async def guardarPartida3Jugadores(self, puntosJugador1, puntosJugador2,puntosJugador3, jugadorPerdedor, jugadorGanador1,jugadorGanador2):  
         now = datetime.now().replace(second=0)
         formatted_date = now.strftime('%Y-%m-%d %H:%M')
         if puntosJugador1 == puntosJugador2 and  puntosJugador2 == puntosJugador3:
