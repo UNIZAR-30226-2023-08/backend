@@ -502,7 +502,7 @@ class Partida4:
     
     
     
-    async def actualizarEstadisticas4Jugadores(jugadorGanador1, jugadorGanador2, jugadorPerdedor1, jugadorPerdedor2): #GANADOR, PERDEDOR
+    async def actualizarEstadisticas4Jugadores(self, jugadorGanador1, jugadorGanador2, jugadorPerdedor1, jugadorPerdedor2): #GANADOR, PERDEDOR
         await actualizarLP(jugadorGanador1, LP_GANADOR)
         await actualizarLP(jugadorGanador2, LP_GANADOR)
         await actualizarCoins(jugadorGanador1, COINS_GANADOR)
@@ -514,7 +514,7 @@ class Partida4:
         await actualizaDerrotas(jugadorPerdedor1)
         await actualizaDerrotas(jugadorPerdedor2)
         
-    async def guardarPartida4Jugadores(puntosGanador, puntosPerdedor,jugadorGanador1,jugadorGanador2, jugadorPerdedor1,jugadorPerdedor2):  
+    async def guardarPartida4Jugadores(self,puntosGanador, puntosPerdedor,jugadorGanador1,jugadorGanador2, jugadorPerdedor1,jugadorPerdedor2):  
         now = datetime.now().replace(second=0)
         formatted_date = now.strftime('%Y-%m-%d %H:%M')
         partida = PartidaCuatro(

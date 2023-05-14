@@ -47,6 +47,10 @@ class User(BaseModel):
     lostMatches: Optional[int] = 0
     winStreak: Optional[int] = 0
 
+class Tienda(BaseModel):
+    username: str 
+    barajas: List[Tuple[str, int]] = []
+    
 class UserInDB(User):
     hashed_password: str
 

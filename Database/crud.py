@@ -40,6 +40,34 @@ async def obtenerJugador(username: str):
      else:
           return None
 
+async def obtenerBarajasTienda(username: str):
+     user = await obtenerJugador(username)
+     if user:
+          tiendaUser = {k: v for k, v in user.items() if k in ['barajas']}
+          tiendaActualizada = actualizarBarajasTienda()
+          for tupla2 in tiendaActualizada:
+               encontrado = False
+               for tupla1 in tiendaUser:
+                    if tupla1[0] == tupla2[0]:
+                         encontrado = True
+                         break
+               if not encontrado:
+                    objeto1.append(tupla2)
+          return tiendaUser
+     else:    
+          return None
+async def actualizarBarajasTienda(username: str):
+     filename = "barajas.txt"
+     tuplas = []
+     with open(filename, "r") as file:
+          for line in file:
+               line = line.strip()  # Eliminar saltos de línea y espacios en blanco al principio y final
+               str_value, int_value = line.split(",")  # Separar la cadena de texto y el entero
+               tuplas.append((str_value, int(int_value))) 
+     
+
+     dbLogin.update_one({'username': username}, {'$set': {'barajas': tuplas}})
+
 ##/////////////////////PARTIDA 2 JUGADORES ///////////////////////
 
 async def insertarPartida2Jugadores(partida2):
