@@ -1,6 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
 import json
+from logica_juego import crear_mazo, repartir_cartas, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre, cantar_cambiar
 from modelo_guinote.logica_juego import crear_mazo, repartir_cartas, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre, cantar_cambiar
 import random
 import time
@@ -64,7 +65,7 @@ class Partida4:
             manos = []
             mazo, triunfo, manos = await self.comienzo_partida()
             
-            for i in range(7):
+            for i in range(4):
                 puntosJugador0_2, puntosJugador1_3, manos, orden, orden_inicial, puede_cantar_cambiar = await self.ronda(triunfo, puntosJugador0_2, puntosJugador1_3, manos, orden, orden_inicial)    
                 if vueltas: 
                     ganador = self.comprobarGanador(puntosJugador0_2, puntosJugador1_3)
@@ -499,6 +500,8 @@ class Partida4:
         time.sleep(3)   
             
         return cantado0_2, cantado1_3, puntosJugador0_2, puntosJugador1_3, triunfo
+    
+    
     
     async def actualizarEstadisticas4Jugadores(jugadorGanador1, jugadorGanador2, jugadorPerdedor1, jugadorPerdedor2): #GANADOR, PERDEDOR
         await actualizarLP(jugadorGanador1, LP_GANADOR)
