@@ -1,4 +1,4 @@
-metal,0
-oro,0
-carbon,0
-tuma,0
+default,1
+noir,0
+classic,0
+classic-noir,0
