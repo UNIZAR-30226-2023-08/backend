@@ -55,7 +55,7 @@ class PartidaIA:
             manos = []
             mazo, triunfo, manos = await self.comienzo_partida()
             
-            for i in range(7):
+            for i in range(4):
                 puntosJugador0_2, puntosJugador1_3, manos, orden, orden_inicial, puede_cantar_cambiar = await self.ronda(triunfo, puntosJugador0_2, puntosJugador1_3, manos, orden, orden_inicial)    
                 if vueltas: 
                     ganador = self.comprobarGanador(puntosJugador0_2, puntosJugador1_3)
