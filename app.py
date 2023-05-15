@@ -13,7 +13,7 @@ from Database.login import authenticate_user
 from Database.database import dbLogin
 from Database.login import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_active_user, get_password_hash
 from Database.schema import User, UserInDB
-from Database.crud import cambiar_jugador_turno, obtener_triufo_partida, obtenerJugador, obtenerTopJugadoresRanking, actualizarBarajasTienda
+from Database.crud import cambiar_jugador_turno, obtener_triufo_partida, obtenerBarajasTienda, obtenerJugador, obtenerTopJugadoresRanking, actualizarBarajasTienda
 from Database.schema import RankingUser
 from modelo_guinote.logica_juego import que_jugador_gana_baza, sumar_puntos
 from modelo_guinote.partida2Jugadores import buscarPartida
@@ -55,7 +55,8 @@ partidas4_publicas = {}
 
 @app.post("/pruebas")
 async def prueba(username: str):
-    await actualizarBarajasTienda()
+   lista_barajas = await obtenerBarajasTienda(username)
+   return lista_barajas
     
  ##///////////INICIO SESION///////////////////
 
@@ -123,6 +124,11 @@ async def read_users_me(limite_lista: int, current_user: User = Depends(get_curr
         )
     top_users = await obtenerTopJugadoresRanking(limite_lista)
     return top_users
+
+@app.get("/tienda/barajas")
+async def prueba(username: str, current_user: User = Depends(get_current_active_user)):
+   lista_barajas = await obtenerBarajasTienda(username)
+   return lista_barajas
 
 #/////////////////////////////////////////////////////////////////////////////////
 

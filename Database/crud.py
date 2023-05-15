@@ -1,5 +1,5 @@
-from Database.database import dbLogin, dbPartida2, dbPartida3, dbPartida4, dbPartida2Jugadores
-from  Database.schema import Partida2, User
+from Database.database import dbLogin, dbPartida2, dbPartida3, dbPartida4, dbPartida2Jugadores, dbTienda
+from  Database.schema import Partida2, Tienda, User
 
 async def actualizarLP(jugador, puntos):
      dbLogin.update_one({'username': jugador}, {'$inc': {'lp': puntos}})
@@ -41,22 +41,27 @@ async def obtenerJugador(username: str):
           return None
 
 async def obtenerBarajasTienda(username: str):
-     user = await obtenerJugador(username)
+     user = await dbTienda.find_one({"username": username})
      if user:
-          tiendaUser = {k: v for k, v in user.items() if k in ['barajas']}
-          tiendaActualizada = actualizarBarajasTienda()
-          for tupla2 in tiendaActualizada:
-               encontrado = False
-               for tupla1 in tiendaUser:
-                    if tupla1[0] == tupla2[0]:
-                         encontrado = True
-                         break
-               if not encontrado:
-                    objeto1.append(tupla2)
-          return tiendaUser
-     else:    
-          return None
-async def actualizarBarajasTienda(username: str):
+          user_seleccionado = {k: v for k, v in user.items() if k in ['barajas']}
+          lista_barajas_usuario = user_seleccionado['barajas']
+          lista_barajas = await actualizarBarajasTienda(username, lista_barajas_usuario)
+          return lista_barajas
+
+     else:
+          filename = "barajas.txt"
+          tuplas = []
+          with open(filename, "r") as file:
+               for line in file:
+                    line = line.strip()  # Eliminar saltos de línea y espacios en blanco al principio y final
+                    str_value, int_value = line.split(",")  # Separar la cadena de texto y el entero
+                    tuplas.append((str_value, int(int_value))) 
+          tienda = Tienda(username= username, barajas=tuplas)
+          datos_tienda = tienda.dict()
+          dbTienda.insert_one(datos_tienda)
+         
+          return tuplas
+async def actualizarBarajasTienda(username: str, tupla):
      filename = "barajas.txt"
      tuplas = []
      with open(filename, "r") as file:
@@ -64,9 +69,17 @@ async def actualizarBarajasTienda(username: str):
                line = line.strip()  # Eliminar saltos de línea y espacios en blanco al principio y final
                str_value, int_value = line.split(",")  # Separar la cadena de texto y el entero
                tuplas.append((str_value, int(int_value))) 
-     
+     for tupla2 in tuplas:
+          encontrado = False
+          for tupla1 in tupla:
+               if tupla1[0] == tupla2[0]:
+                    encontrado = True
+                    break
+          if not encontrado:
+               tupla.append(tupla2)
 
-     dbLogin.update_one({'username': username}, {'$set': {'barajas': tuplas}})
+     dbTienda.update_one({'username': username}, {'$set': {'barajas': tupla}})
+     return tupla
 
 ##/////////////////////PARTIDA 2 JUGADORES ///////////////////////
 

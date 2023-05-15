@@ -1,3 +1,4 @@
-metal,0
-oro,0
-carbon,0
+metal,1
+oro,1
+carbon,1
+tuma,1
