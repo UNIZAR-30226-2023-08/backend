@@ -13,7 +13,7 @@ from Database.login import authenticate_user
 from Database.database import dbLogin
 from Database.login import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_active_user, get_password_hash
 from Database.schema import User, UserInDB
-from Database.crud import cambiar_jugador_turno, obtener_triufo_partida, obtenerBarajasTienda, obtenerJugador, obtenerTopJugadoresRanking, actualizarBarajasTienda
+from Database.crud import cambiar_jugador_turno, comprar_baraja_tienda, obtener_triufo_partida, obtenerBarajasTienda, obtenerJugador, obtenerTopJugadoresRanking, actualizarBarajasTienda
 from Database.schema import RankingUser
 from modelo_guinote.logica_juego import que_jugador_gana_baza, sumar_puntos
 from modelo_guinote.partida2Jugadores import buscarPartida
@@ -126,9 +126,23 @@ async def read_users_me(limite_lista: int, current_user: User = Depends(get_curr
     return top_users
 
 @app.get("/tienda/barajas")
-async def prueba(username: str, current_user: User = Depends(get_current_active_user)):
+async def mostrar_barajas_tienda(username: str, current_user: User = Depends(get_current_active_user)):
    lista_barajas = await obtenerBarajasTienda(username)
    return lista_barajas
+
+@app.get("/tienda/barajas/comprar")
+async def comprar_baraja(username: str, baraja: str,  current_user: User = Depends(get_current_active_user)):
+    resultado = await comprar_baraja_tienda(username, baraja)
+    if resultado == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Usuario no existe"
+        )
+    if resultado == 1:
+        raise HTTPException(
+            status_code=400,
+            detail="Monedas insuficientes"
+        )
 
 #/////////////////////////////////////////////////////////////////////////////////
 

@@ -81,6 +81,24 @@ async def actualizarBarajasTienda(username: str, tupla):
      dbTienda.update_one({'username': username}, {'$set': {'barajas': tupla}})
      return tupla
 
+async def comprar_baraja_tienda(username: str, baraja: str):
+     user = await dbLogin.find_one({"username": username})
+     if user:
+          monedasUsuario = {k: v for k, v in user.items() if k in ['coins']}
+     else:
+          return 0
+     
+     valorMonedasUsuario = int(next(iter(monedasUsuario.values())))
+     if valorMonedasUsuario < 30:
+          return 1
+     
+     dbLogin.update_one({'username': username}, {'$inc': {'coins': -30}})
+     dbTienda.update_one(
+            {'username': username, 'barajas': {'$elemMatch': {'0': baraja}}},
+            {'$set': {'barajas.$.1': 1}}
+        )
+     return 2
+
 ##/////////////////////PARTIDA 2 JUGADORES ///////////////////////
 
 async def insertarPartida2Jugadores(partida2):
