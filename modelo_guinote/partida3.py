@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
 import json
-from modelo_guinote.logica_juego import crear_mazo, repartir_cartas, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre, cantar_cambiar
+from modelo_guinote.logica_juego import crear_mazo, repartir_cartas, que_jugador_gana_baza, sumar_puntos, que_cartas_puede_usar_jugador_arrastre, cantar_cambiar, que_cartas_puede_usar_jugador_arrastre_tres
 import random
 import time
 import uuid
@@ -202,7 +202,7 @@ class Partida3:
                 message = json.dumps(mano_send)
                 await self.send_message_to_all_sockets(message)   
                         
-                cartas_posibles = que_cartas_puede_usar_jugador_arrastre(manos[orden[i]], puntuacion_cartas, triunfo)
+                cartas_posibles = que_cartas_puede_usar_jugador_arrastre_tres(manos[orden[i]], puntuacion_cartas, triunfo)
                 mano_send = {"Cartas Posibles": cartas_posibles}
                 message = json.dumps(mano_send)
                 await self.send_message_to_socket(str(orden[i]), message)
