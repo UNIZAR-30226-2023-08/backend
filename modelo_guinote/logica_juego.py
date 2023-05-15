@@ -1,5 +1,47 @@
 import random
 
+
+    
+ 
+def cantar_cambiar(mano, triunfo):
+    tiene_siete_triunfo = False
+    cantar_oro = False
+    cantar_basto = False
+    cantar_copa = False
+    cantar_espada = False
+        
+    for carta in mano:
+        palo, valor = carta
+        if valor == 7 and palo == triunfo[0]:
+            if triunfo[1] > 7 or triunfo[1] == 3 or triunfo[1] == 1:
+                tiene_siete_triunfo = True
+    
+        if valor == 10 and palo == "oro":
+            for carta in mano:
+                palo, valor = carta
+                if palo == "oro" and valor == 12:
+                    cantar_oro = True
+                    
+        if valor == 10 and palo == "basto":
+            for carta in mano:
+                palo, valor = carta
+                if palo == "basto" and valor == 12:
+                    cantar_basto = True
+                    
+        if valor == 10 and palo == "copa":
+            for carta in mano:
+                palo, valor = carta
+                if palo == "copa" and valor == 12:
+                    cantar_copa = True
+                    
+        if valor == 10 and palo == "espada":
+            for carta in mano:
+                palo, valor = carta
+                if palo == "espada" and valor == 12:
+                    cantar_espada = True
+    
+    return tiene_siete_triunfo, cantar_oro, cantar_basto, cantar_copa, cantar_espada
+
 #Crear la baza
 def crear_mazo():
     palos = ("oro", "copa", "espada", "basto")
@@ -44,6 +86,8 @@ def que_jugador_gana_baza(baza, triunfo):
                 cartaAlta = baza[i]     
     return cartaAlta
 
+def que_cartas_puede_usar_jugador_arrastre_tres(mano, baza, triunfo):
+    return si_puedo_tengo_que_superar(mano, baza, triunfo)
 
 def que_cartas_puede_usar_jugador_arrastre(mano, baza, triunfo):
     triunfo = triunfo[0]
@@ -62,8 +106,83 @@ def que_cartas_puede_usar_jugador_arrastre(mano, baza, triunfo):
         else:
             return no_tengo_que_superar(mano, baza)
         
-                
+        
 def si_puedo_tengo_que_superar(mano, baza, triunfo):
+    valorCarta = [2,4,5,6,7,11,10,12,3,1]
+    cartasPalo = []
+    cartasPaloMayores = []
+    cartasTriunfos = []
+    cartasTriunfosMayores = []
+    palo = baza[0][0]
+    cartaAlta = que_jugador_gana_baza(baza, triunfo)
+    #si la primera carta es la alta
+    if cartaAlta == baza[0]:
+        #si tengo de ese palo supero
+        for x in range(len(mano)):
+            if mano[x][0] == palo:
+                cartasPalo.append(mano[x])
+        #sino tengo cartas de ese palo        
+        if len(cartasPalo) == 0: 
+            #si tengo triunfo echo, sino la mano
+            for x in range(len(mano)):
+                if mano[x][0] == triunfo[0]:
+                    cartasTriunfos.append(mano[x])
+            if len(cartasTriunfos) == 0:
+                return mano;
+            else:
+                return cartasTriunfos;
+        for c in range(len(cartasPalo)):
+            cartasPaloValor = valorCarta.index(int(cartasPalo[c][1]))
+            cartaBazaValor = valorCarta.index(int(baza[0][1]))
+            if cartasPaloValor > cartaBazaValor:
+                cartasPaloMayores.append(cartasPalo[c])    
+        if len(cartasPaloMayores) == 0: 
+            return cartasPalo;
+        else: 
+            return cartasPaloMayores;
+    #si la carta alta no la primera
+    else:
+        for x in range(len(mano)):
+            if mano[x][0] == palo:
+                cartasPalo.append(mano[x])
+        #Si la carta alta no es la primera, pero yo tengo de ese palo mando 
+        if len(cartasPalo) > 0:
+            return cartasPalo;
+        #si la carta alta no es la primera, y no tengo cartas de ese palo, tengo que tratar de superar
+        else:
+            #si es triunfo tengo que tratar de superar
+            if cartaAlta[0] == triunfo:
+                for x in range(len(mano)):
+                    if mano[x][0] == triunfo[0]:
+                        cartasTriunfos.append(mano[x])
+                for c in range(len(cartasTriunfos)):
+                    cartasAltaValor = valorCarta.index(int(cartasTriunfos[c][1]))
+                    cartaTriunfoValor = valorCarta.index(int(cartaAlta[0][1]))
+                    if cartaTriunfoValor > cartasAltaValor:
+                        cartasTriunfosMayores.append(cartasPalo[c])   
+                if len(cartasTriunfosMayores) > 0:
+                    return cartasTriunfosMayores;
+                else: 
+                    return mano;
+            #sino da igual
+            else:
+                return mano;
+                
+
+
+
+        
+        
+    
+        
+
+
+        
+                
+
+            
+            
+def si_puedo_tengo_que_superar_aaaaaaaaa(mano, baza, triunfo):
     valorCarta = [2,4,5,6,7,11,10,12,3,1]
     cartasPosibles = []
     cartasPosiblesMayores = []
@@ -73,7 +192,7 @@ def si_puedo_tengo_que_superar(mano, baza, triunfo):
         for x in range(len(mano)):
             if mano[x][0] == triunfo:
                 cartasPosibles.append(mano[x])
-            if len(cartasPosibles) == 0: return mano;
+        if len(cartasPosibles) == 0: return mano;
         for c in range(len(cartasPosibles)):
             cartasPosiblesValor = valorCarta.index(int(cartasPosibles[c][1]))
             cartaBazaValor = valorCarta.index(int(baza[0][1]))
@@ -100,13 +219,14 @@ def si_puedo_tengo_que_superar(mano, baza, triunfo):
         #Si no tengo cartas del palo ni trunfos juego lo que sea
         else:
             for x in range(len(mano)):
-                if mano[x][0] == triunfo:
+                if mano[x][0] == triunfo[0]:
                     cartasTriunfos.append(mano[x])
-            if len(cartasTriunfos) > 0: 
+            if len(cartasTriunfos) > 0:
                 return cartasTriunfos;
             else: 
                 return mano;
-
+            
+        
 def no_tengo_que_superar(mano, baza):
     cartasPosibles = []
     palo = baza[0][0]
@@ -115,46 +235,6 @@ def no_tengo_que_superar(mano, baza):
             cartasPosibles.append(mano[i])
     if len(cartasPosibles) > 0: return cartasPosibles;
     else: return mano;
-    
- 
-def cantar_cambiar(mano, triunfo):
-    tiene_siete_triunfo = False
-    cantar_oro = False
-    cantar_basto = False
-    cantar_copa = False
-    cantar_espada = False
-        
-    for carta in mano:
-        palo, valor = carta
-        if valor == 7 and palo == triunfo[0]:
-            if triunfo[1] > 7 or triunfo[1] == 3 or triunfo[1] == 1:
-                tiene_siete_triunfo = True
-    
-        if valor == 10 and palo == "oro":
-            for carta in mano:
-                palo, valor = carta
-                if palo == "oro" and valor == 12:
-                    cantar_oro = True
-                    
-        if valor == 10 and palo == "basto":
-            for carta in mano:
-                palo, valor = carta
-                if palo == "basto" and valor == 12:
-                    cantar_basto = True
-                    
-        if valor == 10 and palo == "copa":
-            for carta in mano:
-                palo, valor = carta
-                if palo == "copa" and valor == 12:
-                    cantar_copa = True
-                    
-        if valor == 10 and palo == "espada":
-            for carta in mano:
-                palo, valor = carta
-                if palo == "espada" and valor == 12:
-                    cantar_espada = True
-    
-    return tiene_siete_triunfo, cantar_oro, cantar_basto, cantar_copa, cantar_espada
     
                 
 
@@ -166,10 +246,12 @@ suma = sumar_puntos([("espada", 3), ("espada", 1), ("basto", 5), ("oro", 5)])
 cantar = cantar_cambiar([("espada", 10), ("espada", 12), ("espada", 7), ("oro", 10), ("oro", 12)], ("espada", 1))
 #print(cantar)
 
-cartaGanadora = que_jugador_gana_baza([("espada", 3), ("espada", 1)], "oro")
+cartaGanadora = que_jugador_gana_baza([('basto', 4), ('basto', 10)], "basto")
 #print(cartaGanadora)
 
+validez = que_cartas_puede_usar_jugador_arrastre_tres([("basto", 6), ("espada", 5)], [('oro', 1), ('oro',10)], ("espada", 3))
+#print(validez)
 
-         
+
                     
         
