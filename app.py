@@ -52,6 +52,9 @@ partidas3_publicas = {}
 partidas4_privadas = {}
 partidas4_publicas = {}
 
+@app.get("/")
+def read_root():
+   return {"Hello:" "World"}
 
 @app.post("/pruebas")
 async def prueba(username: str):
