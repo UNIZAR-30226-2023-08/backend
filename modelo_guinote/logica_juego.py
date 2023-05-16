@@ -90,7 +90,7 @@ def que_cartas_puede_usar_jugador_arrastre_tres(mano, baza, triunfo):
     return si_puedo_tengo_que_superar(mano, baza, triunfo)
 
 def que_cartas_puede_usar_jugador_arrastre(mano, baza, triunfo):
-    triunfo = triunfo[0]
+    #triunfo = triunfo[0]
     if len(baza) == 1:
         return si_puedo_tengo_que_superar(mano, baza, triunfo)
     elif len(baza) == 2:
