@@ -79,10 +79,11 @@ class Partida2:
                 cantado0, cantado1, puntosJugador0, puntosJugador1, triunfo = await self.cantar_cambiar_jugador(manos, triunfo, cantado0, cantado1, puntosJugador0, puntosJugador1, puede_cantar_cambiar, arrastre)
                 mazo, manos = await self.repartir(orden_inicial, mazo, triunfo, manos)
             
-            await self.send_message_to_all_sockets("Arrastre")
+            
             arrastre = True
 
             if not alguienHaGanado:
+                await self.send_message_to_all_sockets("Arrastre")
                 for i in range(6): ##ARRAASTRE
                     await self.mandar_manos(orden_inicial, manos)
                     orden, manos, puntosJugador0, puntosJugador1, indice_ganador = await self.arrastre(orden_inicial, orden, triunfo, puntosJugador0, puntosJugador1, manos)
