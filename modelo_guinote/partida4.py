@@ -1,3 +1,5 @@
+
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
 import json
@@ -48,7 +50,7 @@ class Partida4:
         arrastre = False
         vueltas = False
         
-        compruebaGanador = 0
+        compruebaGanador = False
         
         alguienHaGanado = False
         
@@ -69,7 +71,7 @@ class Partida4:
             for i in range(4):
                 puntosJugador0_2, puntosJugador1_3, manos, orden, orden_inicial, puede_cantar_cambiar = await self.ronda(triunfo, puntosJugador0_2, puntosJugador1_3, manos, orden, orden_inicial)    
                 if vueltas: 
-                    compruebaGanador = self.comprobarGanador(puntosJugador0_2, puntosJugador1_3)
+                    compruebaGanador = await self.comprobarGanador(puntosJugador0_2, puntosJugador1_3)
                     if compruebaGanador: 
                         alguienHaGanado = True
                         break
@@ -86,7 +88,7 @@ class Partida4:
                     orden, manos, puntosJugador0_2, puntosJugador1_3, indice_ganador, puede_cantar_cambiar = await self.arrastre(orden_inicial, orden, triunfo, puntosJugador0_2, puntosJugador1_3, manos)
                     cantado0_2, cantado1_3, puntosJugador0_2, puntosJugador1_3, triunfo = await self.cantar_cambiar_jugador(manos, triunfo, cantado0_2, cantado1_3, puntosJugador0_2, puntosJugador1_3, puede_cantar_cambiar, arrastre)
                     if vueltas: 
-                        compruebaGanador = self.comprobarGanador(puntosJugador0_2, puntosJugador1_3)
+                        compruebaGanador = await self.comprobarGanador(puntosJugador0_2, puntosJugador1_3)
                         if compruebaGanador: break
 
                 
@@ -364,16 +366,8 @@ class Partida4:
 
     async def comprobarGanador(self, puntosJugador0_2, puntosJugador1_3):
         if puntosJugador0_2 >= 100:
-            message = {"Ganador": [0,2], "0": puntosJugador0_2 ,"1": puntosJugador1_3, 
-                    "2": puntosJugador0_2, "3": puntosJugador1_3}
-            message = json.dumps(message)
-            await self.send_message_to_all_sockets(message)
             return True
         elif puntosJugador1_3 >= 100:
-            message = {"Ganador": [1,3], "0": puntosJugador0_2 ,"1": puntosJugador1_3, 
-                    "2": puntosJugador0_2, "3": puntosJugador1_3}        
-            message = json.dumps(message)
-            await self.send_message_to_all_sockets(message)
             return True
         else:
             return False
