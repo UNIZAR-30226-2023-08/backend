@@ -150,16 +150,16 @@ class Partida4:
     async def await_message_siete(self, id):
         try:
             if id == "0":
-                mensaje_jugador_0 = await asyncio.wait_for(self.sockets["socket0"].receive_text(), timeout=4)
+                mensaje_jugador_0 = await asyncio.wait_for(self.sockets["socket0"].receive_text(), timeout=3)
                 return mensaje_jugador_0
             elif id == "1":
-                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket1"].receive_text(), timeout=4)
+                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket1"].receive_text(), timeout=3)
                 return mensaje_jugador_1
             elif id == "2":
-                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket2"].receive_text(), timeout=4)
+                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket2"].receive_text(), timeout=3)
                 return mensaje_jugador_1
             else:
-                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket3"].receive_text(), timeout=4)
+                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket3"].receive_text(), timeout=3)
                 return mensaje_jugador_1
         except asyncio.TimeoutError:
             return None
