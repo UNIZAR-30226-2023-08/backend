@@ -120,7 +120,7 @@ class Partida4:
                 mano_send = {"Ganador Partida": None, "0": puntosJugador0_2 ,"1": puntosJugador1_3, "2": puntosJugador0_2 ,"3": puntosJugador1_3}
                 message = json.dumps(mano_send)
                 await self.send_message_to_all_sockets(message)
-                compruebaGanador = 10
+                #compruebaGanador = 10
         
     
     async def remove_player(self, jugador_id: str):
