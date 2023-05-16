@@ -54,6 +54,8 @@ class Partida2:
         vueltas = False
         arrastre = False
         
+        alguienHaGanado = False
+        
         await self.send_message_to_all_sockets("Comienza partida")  
 
         ##CHAT
@@ -71,20 +73,23 @@ class Partida2:
                 puntosJugador0, puntosJugador1, manos, orden, orden_inicial, puede_cantar_cambiar= await self.ronda(triunfo, puntosJugador0, puntosJugador1, manos, orden, orden_inicial)    
                 if vueltas: 
                     ganador = self.comprobarGanador(puntosJugador0, puntosJugador1)
-                    if ganador: break
+                    if ganador: 
+                        alguienHaGanado = True
+                        break
                 cantado0, cantado1, puntosJugador0, puntosJugador1, triunfo = await self.cantar_cambiar_jugador(manos, triunfo, cantado0, cantado1, puntosJugador0, puntosJugador1, puede_cantar_cambiar, arrastre)
                 mazo, manos = await self.repartir(orden_inicial, mazo, triunfo, manos)
             
             await self.send_message_to_all_sockets("Arrastre")
             arrastre = True
 
-            for i in range(6): ##ARRAASTRE
-                await self.mandar_manos(orden_inicial, manos)
-                orden, manos, puntosJugador0, puntosJugador1, indice_ganador = await self.arrastre(orden_inicial, orden, triunfo, puntosJugador0, puntosJugador1, manos)
-                if vueltas: 
-                    ganador = self.comprobarGanador(puntosJugador0, puntosJugador1)
-                    if ganador: break
-                cantado0, cantado1, puntosJugador0, puntosJugador1, triunfo = await self.cantar_cambiar_jugador(manos, triunfo, cantado0, cantado1, puntosJugador0, puntosJugador1, puede_cantar_cambiar, arrastre)
+            if not alguienHaGanado:
+                for i in range(6): ##ARRAASTRE
+                    await self.mandar_manos(orden_inicial, manos)
+                    orden, manos, puntosJugador0, puntosJugador1, indice_ganador = await self.arrastre(orden_inicial, orden, triunfo, puntosJugador0, puntosJugador1, manos)
+                    if vueltas: 
+                        ganador = self.comprobarGanador(puntosJugador0, puntosJugador1)
+                        if ganador: break
+                    cantado0, cantado1, puntosJugador0, puntosJugador1, triunfo = await self.cantar_cambiar_jugador(manos, triunfo, cantado0, cantado1, puntosJugador0, puntosJugador1, puede_cantar_cambiar, arrastre)
 
                 
             if puntosJugador0 > 100 and puntosJugador1 < 100:
@@ -130,10 +135,10 @@ class Partida2:
     async def await_message(self, id):
         try:
             if id == "0":
-                mensaje_jugador_0 = await asyncio.wait_for(self.sockets["socket0"].receive_text(), timeout=40)
+                mensaje_jugador_0 = await asyncio.wait_for(self.sockets["socket0"].receive_text(), timeout=20)
                 return mensaje_jugador_0
             else:
-                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket1"].receive_text(), timeout=40)
+                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket1"].receive_text(), timeout=20)
                 return mensaje_jugador_1
         except asyncio.TimeoutError:
             message_fin = {"Desconexion": id}
@@ -145,10 +150,10 @@ class Partida2:
     async def await_message_siete(self, id):
         try:
             if id == "0":
-                mensaje_jugador_0 = await asyncio.wait_for(self.sockets["socket0"].receive_text(), timeout=40)
+                mensaje_jugador_0 = await asyncio.wait_for(self.sockets["socket0"].receive_text(), timeout=3)
                 return mensaje_jugador_0
             else:
-                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket1"].receive_text(), timeout=40)
+                mensaje_jugador_1 = await asyncio.wait_for(self.sockets["socket1"].receive_text(), timeout=3)
                 return mensaje_jugador_1
         except asyncio.TimeoutError:
             return None
