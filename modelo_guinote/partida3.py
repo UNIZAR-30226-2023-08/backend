@@ -66,7 +66,7 @@ class Partida3:
         await self.send_message_to_all_sockets("Arrastre")
         
         #TODO CAMBIAR EL NUMERO DE VECES QUE SE JEUGA
-        for i in range(6):
+        for i in range(7):
             await self.mandar_manos(orden_inicial, manos)
             orden, manos, puntosJugador0, puntosJugador1, puntosJugador2, puede_cantar_cambiar = await self.arrastre(
                 orden_inicial, orden, triunfo, puntosJugador0, puntosJugador1, puntosJugador2, manos)
